@@ -9,10 +9,12 @@
 #include <vector>
 #include <random>
 #include "../Inih/cpp/INIREADER.h"
+#include "module.h"
 
 using namespace std;
 
 INIReader *config = NULL;
+Module *modules = NULL;
 
 void Load(int argc, char **argv)
 {
@@ -48,7 +50,9 @@ void Load(int argc, char **argv)
 }
 
 void Init(int argc, char **argv)
-{}
+{
+	// Настроить модули
+}
 
 int main(int argc, char **argv)
 {
