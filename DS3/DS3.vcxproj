@@ -77,12 +77,17 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="ds3.cpp" />
+    <ClCompile Include="field.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="module_main.cpp" />
+    <ClCompile Include="module_refl_trans.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="field.h" />
+    <ClInclude Include="global.h" />
     <ClInclude Include="module.h" />
     <ClInclude Include="module_main.h" />
+    <ClInclude Include="module_refl_trans.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

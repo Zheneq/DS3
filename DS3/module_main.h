@@ -1,55 +1,91 @@
-#include "module.h"
-#include <random>
+#include "global.h"
 
-struct Layer
+double nrg_level[] = { .1, .075, .05, .025 };
+int nrgpt[ARRAYSIZE(nrg_level)];
+int nrgpe[ARRAYSIZE(nrg_level)];
+DumpData dmp[] =
 {
-	double left, right, dc;
-};
-
-struct EnvInfo
-{
-	double lz;  // Длина среды
-	double lt;  // Время симуляции 
-	double lz0; // Сдвиг координатной сетки
-	int    nz,  // Число шагов сетки по длине
-		   nt;  // Число шагов сетки по времени
-	double hs,  // Шаги сетки по длине
-		   ts;  // Шаги сетки по времени
-
-	double cf;  // Несущая частота волнового пакета (carrier frequency)
-	double a;   // Длительность импульса
-
-	// Параметры функции диэлектрической проницаемости
-	double DP[2];
-	double DPMaxDivergenceRel;
-
-	Layer *Layers; // Границы подслоёв
-	int LayerCount; // Число подслоёв
-	double LayerWidth[2]; // Ширины подслоёв (чередуются)
-	double LayerWidthMaxDivergenceRel;
-
-	double eps; // Точность
-	char DumpPattern[64];
-
-	const double *e, *h;
+	{ NULL, "inv1", 0 },
+	{ NULL, "inv2", 0 },
+	{ NULL, "inv3", 0 },
+	{ NULL, "nrg", 0 },
+	{ NULL, "nrg1", 0 },
+	{ NULL, "nrg2", 0 },
+	{ NULL, "nrg3", 0 },
+	{ NULL, "nrg1d", 0 },
+	{ NULL, "nrg2d", 0 },
+	{ NULL, "int", 0 },
+	{ NULL, "nrgE", 0 },
+	{ NULL, "nrg1E", 0 },
+	{ NULL, "nrg2E", 0 },
+	{ NULL, "nrg3E", 0 },
+	{ NULL, "nrg1dE", 0 },
+	{ NULL, "nrg2dE", 0 },
+	{ NULL, "nrg1dEts", 0 },
+	{ NULL, "nrg2dEts", 0 },
+	{ NULL, "nrg3dEts", 0 },
+	{ NULL, "nrg2ds", 0 },
+	{ NULL, "nrg2des", 0 },
 };
 
 class MainModule : Module
 {
 private:
-	EnvInfo info;
+	double StructureLeftEdge; // Р›РµРІР°СЏ РіСЂР°РЅРёС†Р° СЃР»РѕСЏ
 
-	uniform_real_distribution<double> LayerWidthDistribution, DPDistribution;
-	default_random_engine generator;
-
-	double StructureLeftEdge; // Левая граница слоя
-
-	double *e, *h;
 public:
-	const EnvInfo& Info() { return info; }
-
 	virtual void Init();
-	virtual void Tick();
+	virtual void Tick(int time);
 
-	virtual list<DataMapping> GenInputList();
+	//==========================================
+	struct DumpData
+	{
+		FILE* file;
+		std::string name;
+		double data;
+	};
+
+	double& inv1 = dmp[0].data;
+	double& inv2 = dmp[1].data;
+	double& inv3 = dmp[2].data;
+
+	// РџРѕР»РЅР°СЏ СЌРЅРµСЂРіРёСЏ
+	double& nrg0 = dmp[3].data;
+
+	double& nrg1 = dmp[4].data;
+	double& nrg2 = dmp[5].data;
+	double& nrg3 = dmp[6].data;
+
+	// Р”РѕР»СЏ Р»РѕРєР°Р»РёР·РѕРІР°РЅРЅРѕР№ РїРѕР»РЅРѕР№ СЌРЅРµСЂРіРёРё (РґР»СЏ РіСЂР°С„РёРєР°)
+	double& nrg1d = dmp[7].data;
+	double& nrg2d = dmp[8].data;
+	double& integ = dmp[9].data;
+
+	// Р­Р»РµРєС‚СЂРёС‡РµСЃРєР°СЏ СЌРЅРµСЂРіРёСЏ
+	double& nrgE = dmp[10].data;
+
+	double& nrg1e = dmp[11].data;
+	double& nrg2e = dmp[12].data;
+	double& nrg3e = dmp[13].data;
+
+	// Р”РѕР»СЏ Р»РѕРєР°Р»РёР·РѕРІР°РЅРЅРѕР№ СЌР»РµРєС‚СЂРёС‡РµСЃРєРѕР№ СЌРЅРµСЂРіРёРё (РґР»СЏ РіСЂР°С„РёРєР°)
+	double& nrg1de = dmp[14].data;
+	double& nrg2de = dmp[15].data;
+
+	// Р”РѕР»СЏ Р»РѕРєР°Р»РёР·РѕРІР°РЅРЅРѕР№ СЌР»РµРєС‚СЂРёС‡РµСЃРєРѕР№ СЌРЅРµСЂРіРёРё РѕС‚ РїРѕР»РЅРѕР№
+	double& nrg1dets = dmp[16].data;
+	double& nrg2dets = dmp[17].data;
+	double& nrg3dets = dmp[18].data;
+
+	// Р”РѕР»СЏ Р»РѕРєР°Р»РёР·РѕРІР°РЅРЅРѕР№ РІ СЃС‚СЂСѓРєС‚СѓСЂРµ СЌРЅРµСЂРіРёРё
+	double& nrg2ds = dmp[19].data;
+	double& nrg2des = dmp[20].data;
+
+	int energytime = -1;
+
+	double NrgInside = 0;
+
+	double integral[2];
+	int WidestSpecTimestamp;
+	int WidestSpecWidth;
 };

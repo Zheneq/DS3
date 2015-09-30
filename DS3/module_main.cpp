@@ -7,103 +7,9 @@ MainModule::MainModule() : Module()
 
 }
 
-list<DataMapping> MainModule::GenInputList()
-{
-	list<DataMapping> res;
-
-	DataMapping Map[] =
-	{
-		{ "Length", "%lf", &info.lz, NULL },
-		{ "Time", "%lf", &info.lt, NULL },
-		{ "Step", "%lf", &info.hs, NULL },
-		{ "CarrFreq", "%lf", &info.cf, NULL },
-		{ "ImpWidth", "%lf", &info.a, NULL },
-
-
-		{ "Eps1", "%lf", &info.DP[0], NULL },
-		{ "Eps2", "%lf", &info.DP[1], NULL },
-		{ "EpsMaxDivergenceRel", "%lf", &info.DPMaxDivergenceRel, "0.1" },
-
-		{ "Left", "%lf", &StructureLeftEdge, NULL },
-		{ "LayerWidth1", "%lf", &info.LayerWidth[0], NULL },
-		{ "LayerWidth2", "%lf", &info.LayerWidth[1], NULL },
-		{ "LayerCount", "%d", &info.LayerCount, NULL },
-		{ "LayerWidthMaxDivergenceRel", "%lf", &info.LayerWidthMaxDivergenceRel, "0.1" }
-	};
-	
-	for each(auto& m in Map)
-	{
-		res.push_back(m);
-	}
-
-	return res;
-}
-
 void MainModule::Init()
 {
-	char DumpPatternPattern[] = "%%.%df, %%.%df\n";
-	LayerWidthDistribution = std::uniform_real_distribution<double>(1.0 - info.LayerWidthMaxDivergenceRel, 1.0 + info.LayerWidthMaxDivergenceRel);
-	DPDistribution = std::uniform_real_distribution<double>(1.0 - info.DPMaxDivergenceRel, 1.0 + info.DPMaxDivergenceRel);
-
-	// Инициализация
-	info.lz0 = info.lz / 2;
-	info.ts = info.hs;
-
-	info.nz = (int)(info.lz / info.hs);
-	info.nt = (int)(info.lt / info.ts);
-	++info.nt;
-
-	int dig = (int)ceil(log(1 / (info.hs*info.hs)) / log(10)) + 1;
-	info.eps = pow(.1, dig) / 2 - 1e-10;
-	sprintf(info.DumpPattern, DumpPatternPattern, dig, dig);
-
-	// Генерирование слоя
-	info.Layers = new Layer[info.LayerCount];
-	int i;
-
-	info.Layers[0].left = StructureLeftEdge;
-	info.Layers[0].right = info.Layers[0].left + info.LayerWidth[0] * LayerWidthDistribution(generator);
-	info.Layers[0].dc = info.DP[0] * DPDistribution(generator);
-	info.Layers[0].dc = info.Layers[0].dc < 1.0 ? 1.0 : info.Layers[0].dc;
-
-	for (i = 0; i < (info.LayerCount - 1) / 2; ++i)
-	{
-		info.Layers[2 * i + 1].left = info.Layers[2 * i].right;
-		info.Layers[2 * i + 1].right = info.Layers[2 * i + 1].left + info.LayerWidth[1] * LayerWidthDistribution(generator);
-		info.Layers[2 * i + 1].dc = info.DP[1] * DPDistribution(generator);
-		info.Layers[2 * i + 1].dc = info.Layers[2 * i + 1].dc < 1.0 ? 1.0 : info.Layers[2 * i + 1].dc;
-
-		info.Layers[2 * i + 2].left = info.Layers[2 * i + 1].right;
-		info.Layers[2 * i + 2].right = info.Layers[2 * i + 2].left + info.LayerWidth[0] * LayerWidthDistribution(generator);
-		info.Layers[2 * i + 2].dc = info.DP[0] * DPDistribution(generator);
-		info.Layers[2 * i + 2].dc = info.Layers[2 * i + 2].dc < 1.0 ? 1.0 : info.Layers[2 * i + 2].dc;
-	}
-	if (!(info.LayerCount % 2))
-	{
-		info.Layers[info.LayerCount - 1].left = info.Layers[info.LayerCount - 2].right;
-		info.Layers[info.LayerCount - 1].right = info.Layers[info.LayerCount - 1].left + info.LayerWidth[1] * LayerWidthDistribution(generator);
-		info.Layers[info.LayerCount - 1].dc = info.DP[1] * DPDistribution(generator);
-	}
-
-
-	//
-	//	RecHeads.push_back(new RecHead(idxxe(obj_raw.left - 10), nt));
-	//	RecHeads.push_back(new RecHead(idxxe(obj_raw.right + 10), nt));
-
-	info.h = h = (double*)fftw_malloc(nz*sizeof(double));
-	info.e = e = (double*)fftw_malloc(nz*sizeof(double));
-
-	//	printf("Choosing best algorithm for Fourier transform... ");
-	Fourier(CP_INIT);
-	//	printf("Done!\n");
-
-	// Начальные значения
-	double xe = realxe(0), xh = realxh(0);
-	for (int i = 0; i<nz; xe += hs, xh += hs, ++i)
-	{
-		h[i] = e[i] = exp(-((xe*xe) / (a*a)))*cos(cf*xe);
-	}
-
+	StructureLeftEdge = config->GetReal("Data", "Left", 0.0);
 
 	WidestSpecTimestamp = -1;
 	WidestSpecWidth = 0;
@@ -113,4 +19,103 @@ void MainModule::Init()
 		nrgpt[i] = -1;
 		nrgpe[i] = -1;
 	}
+}
+
+void MainModule::Tick(int time)
+{
+	// РЎС‡РёС‚Р°РµРј РёРЅРІР°СЂРёР°РЅС‚С‹
+	inv3 = inv2 = inv1 = 0;
+	nrg3 = nrg2 = nrg1 = nrg0 = 0;
+	nrg3e = nrg2e = nrg1e = nrgE = 0;
+
+	for (int j = 0; j<info.nz; j++)
+	{
+		double dcj = DielCond(j, time - 1);
+		inv1 += info.e->data[j] * dcj;
+		inv2 += info.h->data[j];
+		inv3 += info.e->data[j] * info.e->data[j] * dcj*dcj + info.h->data[j] * info.h->data[j];
+
+		if (realxe(j) < info.Layers[0].left)
+		{
+			nrg1 += Energy(j, time - 1);
+			nrg1e += ElecEnergy(j, time - 1);
+		}
+		else if (realxe(j) <= info.Layers[info.LayerCount - 1].right)
+		{
+			nrg2 += Energy(j, time - 1);
+			nrg2e += ElecEnergy(j, time - 1);
+		}
+		else
+		{
+			nrg3 += Energy(j, time - 1);
+			nrg3e += ElecEnergy(j, time - 1);
+		}
+	}
+
+	nrg0 = nrg1 + nrg2 + nrg3;
+	nrgE = nrg1e + nrg2e + nrg3e;
+	nrg1d = nrg1 / nrg0;
+	nrg2ds = nrg2 / nrg0;
+	nrg1de = nrg1e / nrgE;
+	nrg2des = nrg2e / nrgE;
+
+	nrg2d = nrg2ds + nrg1d;
+	nrg2de = nrg2des + nrg1de;
+
+	nrg1dets = nrg1e / nrg0;
+	nrg2dets = nrg2e / nrg0;
+	nrg3dets = nrg3e / nrg0;
+
+//	for (auto& RC : RecHeads)
+//	{
+//		RC->data->data[time] = e[RC->idx];
+//	}
+
+	for (int j = 0; j < ARRAYSIZE(nrg_level); ++j)
+	{
+		if (nrg2ds > nrg_level[j])
+			nrgpt[j] = time;
+		if (nrg2des > nrg_level[j])
+			nrgpe[j] = time;
+	}
+	if (time == info.TimeStamp) NrgInside = nrg2ds;
+
+	//*
+	integral[0] = 0;
+	// РЎС‡РёС‚Р°РµРј РїРѕР»Рµ
+	for (int j = 0; j < info.nz - 1; j++)
+	{
+		info.e->data[j + 1] = (info.e->data[j + 1] * DielCond(j + 1, time - 1) - (info.h->data[j + 1] - info.h->data[j])*info.ts / info.hs) / DielCond(j + 1, time);
+		integral[0] += info.e->data[j + 1] * info.e->data[j + 1];
+	}
+	info.e->data[0] = 0;
+
+	for (int j = 0; j<info.nz - 1; j++)
+	{
+		info.h->data[j] = info.h->data[j] - (info.e->data[j + 1] - info.e->data[j])*info.ts / info.hs;
+	}
+	info.h->data[info.nz - 1] = 0;
+	//*/
+	info.e->Fourier();
+	// info.h->Fourier();
+	// Р”РµР»Р°РµРј С‡С‚Рѕ-РЅРёР±СѓРґСЊ СЃРѕ СЃРїРµРєС‚СЂРѕРј
+
+	// РЁРёСЂРёРЅР° СЃРїРµРєС‚СЂР° Рё РёРЅС‚РµРіСЂР°Р»
+	integral[1] = 0;
+	int w = -1;
+	for (int j = 0; j < info.nz / 2 + 1; ++j)
+	{
+		integral[1] += info.e->spec[j];
+		if (info.e->spec[j] >= SPEC_LEVEL) w = j;
+	}
+	integ = integral[0] - integral[1] + 0.5*info.e->spec[0];
+	if (w > WidestSpecWidth)
+	{
+		WidestSpecWidth = w;
+		WidestSpecTimestamp = time;
+	}
+	//*/
+	// Dump();
+
+	//	Fourier(CP_RUN, true);
 }
