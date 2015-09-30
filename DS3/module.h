@@ -18,7 +18,6 @@ public:
 	Module();
 	~Module();
 	virtual void Init() = 0;
-	virtual void Tick() = 0;
-	
-	virtual list<DataMapping> GenInputList() = 0;
+	virtual void Tick(int time) = 0;
+	virtual void PostCalc(int time) = 0;
 };
