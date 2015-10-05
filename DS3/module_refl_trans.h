@@ -7,4 +7,5 @@ private:
 public:
 	virtual void Init();
 	virtual void PostCalc(int time);
+	void Dump();
 };

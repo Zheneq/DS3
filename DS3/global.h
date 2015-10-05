@@ -15,13 +15,16 @@
 
 const double SPEC_LEVEL = .001;
 
-INIReader *config = NULL;
-std::list<Module*> modules;
+extern INIReader *config;
+extern std::list<Module*> modules;
 
 struct Layer
 {
 	double left, right, dc;
 };
+
+// Forward declaration
+class field;
 
 struct EnvInfo
 {
@@ -53,10 +56,10 @@ struct EnvInfo
 	field *e, *h;
 };
 
-EnvInfo info;
+extern EnvInfo info;
 
-uniform_real_distribution<double> LayerWidthDistribution, DPDistribution;
-default_random_engine generator;
+extern uniform_real_distribution<double> LayerWidthDistribution, DPDistribution;
+extern default_random_engine generator;
 
 inline double realxe(int i) { return i*info.hs - info.lz0; }
 inline double realxh(int i) { return realxe(i) + info.hs * .5; }
@@ -64,32 +67,10 @@ inline double realte(int i) { return i*info.ts; }
 inline double realth(int i) { return realte(i) + info.ts * .5; }
 inline int idxxe(double x) { return (int)(round((x + info.lz0) / info.hs)); }
 
-inline double DielCond(int x, int t = 0)
-{
-	register double rx = realxe(x);
+inline double DielCond(int x, int t = 0);
 
-	// Если мы вне слоя, сразу выходим
-	if ((rx<info.Layers[0].left - info.hs) || (rx>info.Layers[info.LayerCount - 1].right + info.hs))
-		return 1;
-	for (int i = 0; i < info.LayerCount; ++i)
-	{
-		// Если мы попали на границу
-		if (abs(rx - info.Layers[i].left) < info.hs*.5 || abs(rx - info.Layers[i].right) < info.hs*.5)
-			return .5*(DielCond(x - 1, t) + DielCond(x + 1, t));
-		// Если мы попали в подслой
-		if (rx > info.Layers[i].left && rx < info.Layers[i].right)
-			return info.Layers[i].dc;
-	}
-	// Если мы никуда не попали
-	return 1;
-}
+double Energy(int x, int t);
 
-double Energy(int x, int t)
-{
-	return .5 * (DielCond(x, t) * info.e->data[x] * info.e->data[x] + info.h->data[x] * info.h->data[x]);
-}
+double ElecEnergy(int x, int t);
 
-double ElecEnergy(int x, int t)
-{
-	return .5 * DielCond(x, t) * info.e->data[x] * info.e->data[x];
-}
+FILE *GetFile(const char *name);

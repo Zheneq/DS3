@@ -25,4 +25,12 @@ void RTModule::PostCalc(int time)
 
 	// Коэффициенты прохождения и отражения
 
+
+	Dump();
+}
+
+void RTModule::Dump()
+{
+	refl->Dump("reflected");
+	tran->Dump("transmitted");
 }

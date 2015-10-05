@@ -56,6 +56,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>../FFTW/libfftw3l-3.lib;../FFTW/libfftw3-3.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -73,21 +74,28 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalDependencies>../FFTW/libfftw3l-3.lib;../FFTW/libfftw3-3.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\Inih\cpp\INIReader.cpp" />
+    <ClCompile Include="..\Inih\ini.c" />
     <ClCompile Include="ds3.cpp" />
     <ClCompile Include="field.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="module_main.cpp" />
     <ClCompile Include="module_refl_trans.cpp" />
+    <ClCompile Include="module_nrg.cpp" />
+    <ClCompile Include="module_specstats.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="field.h" />
     <ClInclude Include="global.h" />
     <ClInclude Include="module.h" />
     <ClInclude Include="module_main.h" />
+    <ClInclude Include="module_nrg.h" />
     <ClInclude Include="module_refl_trans.h" />
+    <ClInclude Include="module_specstats.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
