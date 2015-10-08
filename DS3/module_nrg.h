@@ -8,36 +8,13 @@ struct DumpData
 	double data;
 };
 
-double nrg_level[] = { .1, .075, .05, .025 };
-int nrgpt[ARRAYSIZE(nrg_level)];
-int nrgpe[ARRAYSIZE(nrg_level)];
+extern double nrg_level[];
+extern int nrgpt[];
+extern int nrgpe[];
 
-DumpData dmp[] =
-{
-	{ NULL, "inv1", 0 },
-	{ NULL, "inv2", 0 },
-	{ NULL, "inv3", 0 },
-	{ NULL, "nrg", 0 },
-	{ NULL, "nrg1", 0 },
-	{ NULL, "nrg2", 0 },
-	{ NULL, "nrg3", 0 },
-	{ NULL, "nrg1d", 0 },
-	{ NULL, "nrg2d", 0 },
-	{ NULL, "int", 0 },
-	{ NULL, "nrgE", 0 },
-	{ NULL, "nrg1E", 0 },
-	{ NULL, "nrg2E", 0 },
-	{ NULL, "nrg3E", 0 },
-	{ NULL, "nrg1dE", 0 },
-	{ NULL, "nrg2dE", 0 },
-	{ NULL, "nrg1dEts", 0 },
-	{ NULL, "nrg2dEts", 0 },
-	{ NULL, "nrg3dEts", 0 },
-	{ NULL, "nrg2ds", 0 },
-	{ NULL, "nrg2des", 0 },
-};
+extern DumpData dmp[];
 
-class NRGModule : Module
+class NRGModule : public Module
 {
 private:
 

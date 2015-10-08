@@ -1,0 +1,39 @@
+set terminal pngcairo enhanced dashed font "Calibri, 30" size 1300,1000
+set border 3
+set xtics nomirror
+set ytics nomirror
+
+set style line 1 lc rgb 'black' lw 3 lt -1 pt 7
+set style line 2 lc rgb 'black' lw 3 lt 0  pt 7
+set style line 3 lc rgb 'black' lw 3 lt 7  pt 7
+
+
+set xrange [leftrange:rightrange]
+set output sprintf("%s/%s-starte.png", folder, folder);
+plot sprintf("%s/e%03d.txt", folder, begin/100) index begin%100 with lines ls 1 ti "";
+set output sprintf("%s/%s-finale.png", folder, folder);
+plot sprintf("%s/e%03d.txt", folder, 250*step/100) index 250*step%100 with lines ls 1 ti "";
+
+set autoscale xy
+set output sprintf("%s/%s-e-median.png", folder, folder);
+plot sprintf("%s/e-median.txt", folder) with lines ls 1 ti "";
+set xrange[0:2]
+set output sprintf("%s/%s-e-median-spec.png", folder, folder);
+plot sprintf("%s/e-median-spec.txt", folder) with lines ls 1 ti "";
+
+
+set xrange [100:1200]
+set output sprintf("%s/%s-e-trans.png", folder, folder);
+plot sprintf("%s/e-trans.txt", folder) with lines ls 1 ti "";
+
+set xrange[0:2]
+set output sprintf("%s/%s-e-trans-spec.png", folder, folder);
+plot sprintf("%s/e-trans-spec.txt", folder) with lines ls 1 ti "";
+
+set xrange [-1000:100]
+set output sprintf("%s/%s-e-refl.png", folder, folder);
+plot sprintf("%s/e-refl.txt", folder) with lines ls 1 ti "";
+
+set xrange[0:2]
+set output sprintf("%s/%s-e-refl-spec.png", folder, folder);
+plot sprintf("%s/e-refl-spec.txt", folder) with lines ls 1 ti "";

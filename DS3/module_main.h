@@ -1,7 +1,7 @@
 #pragma once
 #include "global.h"
 
-class MainModule : Module
+class MainModule : public Module
 {
 private:
 	double StructureLeftEdge; // Левая граница слоя

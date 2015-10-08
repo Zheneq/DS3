@@ -1,5 +1,5 @@
-#pragma once
 #define _CRT_SECURE_NO_WARNINGS
+#pragma once
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -9,6 +9,7 @@
 #include <string>
 #include <vector>
 #include <random>
+#include "env.h"
 #include "module.h"
 #include "field.h"
 #include "../Inih/cpp/INIREADER.h"
@@ -16,56 +17,23 @@
 const double SPEC_LEVEL = .001;
 
 extern INIReader *config;
-extern std::list<Module*> modules;
+extern int ExperimentNum;
 
 struct Layer
 {
 	double left, right, dc;
 };
 
-// Forward declaration
-class field;
+// Forward decl
+class EnvInfo;
 
-struct EnvInfo
-{
-	double lz;  // Длина среды
-	double lt;  // Время симуляции 
-	double lz0; // Сдвиг координатной сетки
-	int    nz,  // Число шагов сетки по длине
-		nt;  // Число шагов сетки по времени
-	double hs,  // Шаги сетки по длине
-		ts;  // Шаги сетки по времени
+extern EnvInfo *info;
 
-	double cf;  // Несущая частота волнового пакета (carrier frequency)
-	double a;   // Длительность импульса
-
-	// Параметры функции диэлектрической проницаемости
-	double DP[2];
-	double DPMaxDivergenceRel;
-
-	Layer *Layers; // Границы подслоёв
-	int LayerCount; // Число подслоёв
-	double LayerWidth[2]; // Ширины подслоёв (чередуются)
-	double LayerWidthMaxDivergenceRel;
-
-	double eps; // Точность
-	char DumpPattern[64];
-
-	int TimeStamp; // Шаг, на котором нужно зафиксировать распределение энергии
-
-	field *e, *h;
-};
-
-extern EnvInfo info;
-
-extern uniform_real_distribution<double> LayerWidthDistribution, DPDistribution;
-extern default_random_engine generator;
-
-inline double realxe(int i) { return i*info.hs - info.lz0; }
-inline double realxh(int i) { return realxe(i) + info.hs * .5; }
-inline double realte(int i) { return i*info.ts; }
-inline double realth(int i) { return realte(i) + info.ts * .5; }
-inline int idxxe(double x) { return (int)(round((x + info.lz0) / info.hs)); }
+double realxe(int i);
+double realxh(int i);
+double realte(int i);
+double realth(int i);
+int idxxe(double x);
 
 inline double DielCond(int x, int t = 0);
 

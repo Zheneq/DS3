@@ -1,7 +1,7 @@
 #pragma once
 #include "global.h"
 
-class SSModule : Module
+class SSModule : public Module
 {
 private:
 
