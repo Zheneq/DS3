@@ -14,6 +14,8 @@ RTModule::~RTModule()
 
 void RTModule::Init()
 {
+	if (refl) delete refl;
+	if (tran) delete tran;
 	refl = new field();
 	refl->Init(info->nz);
 	tran = new field();

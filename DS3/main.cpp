@@ -64,6 +64,18 @@ void Load(int argc, char **argv)
 		sprintf(Folder, "%s/E%03d", config->Get("Data", "DumpPath", "").c_str(), i);
 		_mkdir(Folder);
 	}
+
+	// Модули
+
+	// for (auto m : modules)
+	//	delete m;
+	// modules.clear();
+
+	modules.push_back(new MainModule);
+	modules.push_back(new NRGModule);
+	modules.push_back(new RTModule);
+	modules.push_back(new SSModule);
+	modules.push_back(new CacheModule);
 }
 
 void Init(int argc, char **argv)
@@ -82,16 +94,6 @@ void Init(int argc, char **argv)
 		info->h->data[i] = info->e->data[i] = exp(-((xe*xe) / (info->a*info->a)))*cos(info->cf*xe);
 	}
 
-	// Модули
-	for (auto m : modules)
-		delete m;
-	modules.clear();
-
-	modules.push_back(new MainModule);
-	modules.push_back(new NRGModule);
-	modules.push_back(new RTModule);
-	modules.push_back(new SSModule);
-	modules.push_back(new CacheModule);
 
 }
 
