@@ -20,7 +20,7 @@ using namespace std;
 std::list<Module*> modules;
 field *e_cache = NULL, *h_cache = NULL;
 
-int ExperimentNum = -1;
+int ExperimentNum = -1, ExperimentCount = -1;
 
 void Load(int argc, char **argv)
 {
@@ -64,6 +64,8 @@ void Load(int argc, char **argv)
 		sprintf(Folder, "%s/E%03d", config->Get("Data", "DumpPath", "").c_str(), i);
 		_mkdir(Folder);
 	}
+	sprintf(Folder, "%s/Average%03d", config->Get("Data", "DumpPath", "").c_str(), ExpCount);
+	_mkdir(Folder);
 
 	// Модули
 
@@ -103,7 +105,7 @@ int main(int argc, char **argv)
 	{
 		Load(argc, argv);
 
-		int ExperimentCount = config->GetInteger("Data", "ExperimentCount", -1);
+		ExperimentCount = config->GetInteger("Data", "ExperimentCount", -1);
 		for (ExperimentNum = 0; ExperimentNum < ExperimentCount; ++ExperimentNum)
 		{
 			Init(argc, argv);
@@ -123,6 +125,9 @@ int main(int argc, char **argv)
 				m->PostCalc(time);
 		}
 
+		for (auto m : modules)
+			m->Average();
+/*
 		{
 			Init(argc, argv);
 			for (auto m : modules)
@@ -138,6 +143,7 @@ int main(int argc, char **argv)
 			for (auto m : modules)
 				m->PostCalc(-1);
 		}
+*/
 	}
 	catch (char *error)
 	{

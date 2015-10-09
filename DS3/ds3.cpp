@@ -43,7 +43,10 @@ double ElecEnergy(int x, int t)
 FILE *GetFile(const char *name)
 {
 	char DumpPath[512];
-	sprintf(DumpPath, "%s/E%03d/%s.txt", config->Get("Data", "DumpPath", "").c_str(), ExperimentNum, name);
+	if (ExperimentNum < ExperimentCount)
+		sprintf(DumpPath, "%s/E%03d/%s.txt", config->Get("Data", "DumpPath", "").c_str(), ExperimentNum, name);
+	else
+		sprintf(DumpPath, "%s/Average%03d/%s.txt", config->Get("Data", "DumpPath", "").c_str(), ExperimentCount, name);
 	FILE *f = fopen(DumpPath, "wt");
 
 	if (!f)

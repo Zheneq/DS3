@@ -28,6 +28,7 @@ struct Layer
 class EnvInfo;
 
 extern EnvInfo *info;
+extern int ExperimentNum, ExperimentCount;
 
 double realxe(int i);
 double realxh(int i);
