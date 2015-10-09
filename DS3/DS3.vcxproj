@@ -86,6 +86,7 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="module_cacher.cpp" />
     <ClCompile Include="module_main.cpp" />
+    <ClCompile Include="module_observer.cpp" />
     <ClCompile Include="module_refl_trans.cpp" />
     <ClCompile Include="module_nrg.cpp" />
     <ClCompile Include="module_specstats.cpp" />
@@ -98,6 +99,7 @@
     <ClInclude Include="module_cacher.h" />
     <ClInclude Include="module_main.h" />
     <ClInclude Include="module_nrg.h" />
+    <ClInclude Include="module_observer.h" />
     <ClInclude Include="module_refl_trans.h" />
     <ClInclude Include="module_specstats.h" />
   </ItemGroup>
