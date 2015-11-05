@@ -54,7 +54,7 @@ void NRGModule::Tick(int time)
 		double dcj = DielCond(j, time - 1);
 		inv1 += info->e->data[j] * dcj;
 		inv2 += info->h->data[j];
-		inv3 += info->e->data[j] * info->e->data[j] * dcj*dcj + info->h->data[j] * info->h->data[j];
+		inv3 += info->e->data[j] * info->e->data[j] * dcj + info->h->data[j] * info->h->data[j];
 
 		if (realxe(j) < info->Layers[0].left)
 		{

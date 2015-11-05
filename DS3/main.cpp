@@ -6,6 +6,7 @@
 #include <windows.h>
 #include <direct.h>
 #include <string>
+#include <ctime>
 #include "global.h"
 
 // Modules
@@ -14,13 +15,24 @@
 #include "module_refl_trans.h"
 #include "module_specstats.h"
 #include "module_cacher.h"
+#include "module_observer.h"
 
 using namespace std;
 
+FILE *LogFile = NULL;
 std::list<Module*> modules;
 field *e_cache = NULL, *h_cache = NULL;
+ObsModule *obs = NULL;
+default_random_engine *gen = NULL;
 
 int ExperimentNum = -1, ExperimentCount = -1;
+
+void Log(const char *msg)
+{
+	if (!LogFile) throw("No log file!");
+
+	fprintf(LogFile, "%s\n", msg);
+}
 
 void Load(int argc, char **argv)
 {
@@ -54,6 +66,9 @@ void Load(int argc, char **argv)
 	//	<< reader.GetReal("user", "pi", -1) << ", active="
 	//	<< reader.GetBoolean("user", "active", true) << "\n";
 
+	// As we have config now, we can create a temprary info object
+	info = new EnvInfo();
+
 	// Output folders
 	_mkdir(config->Get("Data", "DumpPath", "").c_str());
 
@@ -67,27 +82,44 @@ void Load(int argc, char **argv)
 	sprintf(Folder, "%s/Average%03d", config->Get("Data", "DumpPath", "").c_str(), ExpCount);
 	_mkdir(Folder);
 
+	// Init logger
+	char *fn = new char[256];
+	sprintf(fn, "%s/log.txt", config->Get("Data", "DumpPath", "").c_str());
+	LogFile = fopen(fn, "w");
+	delete[] fn;
+
 	// Модули
 
 	// for (auto m : modules)
 	//	delete m;
 	// modules.clear();
 
+	obs = new ObsModule;
+
+	obs->AddObserver(idxxe(-50));
+	//obs->AddObserver(idxxe(-250));
+	//obs->AddObserver(idxxe(-500));
+	obs->AddObserver(idxxe(400));
+	//obs->AddObserver(idxxe(530));
+	//obs->AddObserver(idxxe(780));
+
 	modules.push_back(new MainModule);
 	modules.push_back(new NRGModule);
-	modules.push_back(new RTModule);
+//	modules.push_back(new RTModule);
 	modules.push_back(new SSModule);
-	modules.push_back(new CacheModule);
+	modules.push_back(obs);
+
+}
+
+void UnLoad()
+{
+	fclose(LogFile);
 }
 
 void Init(int argc, char **argv)
 {
 	if (info) delete info;
 	info = new EnvInfo();
-
-	//
-	//	RecHeads.push_back(new RecHead(idxxe(obj_raw.left - 10), nt));
-	//	RecHeads.push_back(new RecHead(idxxe(obj_raw.right + 10), nt));
 
 	// Начальные значения
 	double xe = realxe(0);
@@ -103,6 +135,8 @@ int main(int argc, char **argv)
 {
 	try
 	{
+		gen = new default_random_engine(time(0));
+
 		Load(argc, argv);
 
 		ExperimentCount = config->GetInteger("Data", "ExperimentCount", -1);
@@ -112,15 +146,26 @@ int main(int argc, char **argv)
 			for (auto m : modules)
 				m->Init();
 
+			char *m = new char[128];
+			Log("Structure");
+			for (int i = 0; i < info->LayerCount; ++i)
+			{
+				sprintf(m, info->DumpPattern, info->Layers[i].right - info->Layers[i].left, info->Layers[i].dc);
+				Log(m);
+			}
+			Log("Structure end");
+
 			// Просчёт
 			int time;
 			for (time = 1; time < info->nt; ++time)
 			{
-				printf("\r%d/%d          ", time, info->nt - 1);
+				printf("\r%02d of %d: %d/%d          ", ExperimentNum, ExperimentCount, time, info->nt - 1);
 
 				for (auto m : modules)
 					m->Tick(time);
 			}
+			printf("\n");
+
 			for (auto m : modules)
 				m->PostCalc(time);
 		}
@@ -148,8 +193,10 @@ int main(int argc, char **argv)
 	catch (char *error)
 	{
 		cerr << error << endl;
+		UnLoad();
 		return 1;
 	}
+	UnLoad();
 
 	return 0;
 }

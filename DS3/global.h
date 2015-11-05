@@ -18,6 +18,7 @@ const double SPEC_LEVEL = .001;
 
 extern INIReader *config;
 extern int ExperimentNum;
+extern default_random_engine *gen;
 
 struct Layer
 {
@@ -34,6 +35,8 @@ double realxe(int i);
 double realxh(int i);
 double realte(int i);
 double realth(int i);
+double realspec(int i);
+double realspect(int i);
 int idxxe(double x);
 
 inline double DielCond(int x, int t = 0);
@@ -43,3 +46,5 @@ double Energy(int x, int t);
 double ElecEnergy(int x, int t);
 
 FILE *GetFile(const char *name);
+
+void Log(const char *msg);

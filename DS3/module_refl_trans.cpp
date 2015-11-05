@@ -31,6 +31,7 @@ void RTModule::PostCalc(int time)
 	int Left = idxxe(info->Layers[0].left) - 1,
 		Right = idxxe(info->Layers[info->LayerCount].right) + 1;
 	ZeroMemory(&refl->data[Left], info->nz - Left);
+	// TODO: ?? вылетает
 	ZeroMemory(&tran->data[0], Right);
 
 	// Спектр

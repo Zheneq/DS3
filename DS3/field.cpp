@@ -46,17 +46,55 @@ void field::Free()
 	free(data);
 }
 
-void field::Dump(char *name)
+void field::Dump(char *name, double(*transform)(int), double(*transformspec)(int))
 {
 	char fn[256];
-	Dump_Sub(name, data, n);
+	Dump_Sub(GetFile(name), data, n, transform);
 	sprintf(fn, "%s-spec", name);
-	Dump_Sub(fn, spec, n/2 + 1);
+	Dump_Sub(GetFile(fn), spec, n / 2 + 1, transformspec);
 }
 
-void field::Dump_Sub(char *name, double *data, int n)
+void field::Dump(FILE *DataFile, FILE *SpecFile, double(*transform)(int), double(*transformspec)(int))
 {
-	FILE *fe = GetFile(name);
+	if (DataFile)
+		Dump_Sub(DataFile, data, n, transform);
+	if (SpecFile)
+		Dump_Sub(SpecFile, spec, n / 2 + 1, transformspec);
+}
+
+void field::DumpFullPrecision(char *name, double(*transform)(int), double(*transformspec)(int))
+{
+	char fn[256];
+	sprintf(fn, "%s-spec", name);
+
+	FILE *f = GetFile(name), *fs = GetFile(fn);
+	DumpFullPrecision(f, fs, transform, transformspec);
+	fclose(f);
+	fclose(fs);
+}
+
+void field::DumpFullPrecision(FILE *DataFile, FILE *SpecFile, double(*transform)(int), double(*transformspec)(int))
+{
+	char fn[256];
+
+	if (DataFile)
+	{
+		for (int i = 0; i < n; ++i)
+			fprintf(DataFile, "%e %e\n", transform(i), data[i]);
+		fprintf(DataFile, "\n\n");
+	}
+
+	if (SpecFile)
+	{
+		for (int i = 0; i <= n / 2; ++i)
+			fprintf(SpecFile, "%e %e\n", transformspec(i), spec[i]);
+		fprintf(SpecFile, "\n\n");
+	}
+}
+
+void field::Dump_Sub(FILE *file, double *data, int n, double(*transform)(int))
+{
+	FILE *fe = file;
 
 	int i;
 	fprintf(fe, info->DumpPattern, realxe(0), data[0]);

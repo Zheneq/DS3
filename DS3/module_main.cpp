@@ -10,10 +10,6 @@ void MainModule::Init()
 
 void MainModule::Tick(int time)
 {
-	//	for (auto& RC : RecHeads)
-	//	{
-	//		RC->data->data[time] = e[RC->idx];
-	//	}
 	if (time < 0) return;
 	//*
 	// Считаем поле

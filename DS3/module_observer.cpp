@@ -2,16 +2,20 @@
 
 void ObsModule::Init()
 {
-	//for (auto rc = RecHeads.begin(); rc < RecHeads.end(); rc++)
-	//{
-	//	(*rc)->Init();
-	//}
+	for (auto rc : RecHeads)
+		rc->Init();
+	Tick(0);
 }
 
 void ObsModule::AddObserver(int x)
 {
 	RecHeads.push_back(new RecHead(x, info->nt));
-	RecHeads.back()->Init();
+	//RecHeads.back()->Init();
+
+	char *msg = new char[256];
+	sprintf(msg, "Observer %02d at %f", RecHeads.size() - 1, realxe(x));
+	Log(msg);
+	delete[] msg;
 }
 
 ObsModule::~ObsModule()
@@ -69,7 +73,20 @@ void ObsModule::Average()
 		RC->data->Fourier();
 
 		sprintf(fn, "rec%03d", idx);
-		RC->data->Dump(fn);
+		FILE *f = GetFile(fn);
+		sprintf(fn, "rec%03d-spec", idx);
+		FILE *fs = GetFile(fn);
+
+		RC->data->DumpFullPrecision(f, fs, realte, realspect);
+		for (auto rec : RC->Records)
+		{
+			rec->DumpFullPrecision(f, fs, realte, realspect);
+		}
+
+		fclose(f);
+		fclose(fs);
+
+		idx++;
 	}
 
 	delete[] fn;

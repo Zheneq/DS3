@@ -86,23 +86,15 @@ plot sprintf("%s/nrg3dets.txt", folder) with lines ls 2 ti "Transmitted",\
 	sprintf("%s/nrg2dets.txt", folder) with lines ls 1 ti "Localized",\
 	sprintf("%s/nrg1dets.txt", folder) with lines ls 3 ti "Reflected";
 
-set autoscale xy
-set ylabel "Permittivity" 
-set xlabel "" 
-set label 1 "{/Symbol e}" at graph -0.15, 1
-set label 2 "z" at graph 1, -0.15
-set output sprintf("%s/%s-Diel-Cond.png", folder, folder);
-plot sprintf("%s/dielcond.txt", folder) with lines ls 1 ti "";
-
 set terminal pngcairo enhanced dashed font "Calibri, 30" size 5000,1000
-set ylabel "" 
-set xlabel ""
+set ylabel "E" 
+set xlabel "t"
 set arrow 1;
-do for[i=0:9] {
+do for[i=0:1] {
 	set autoscale xy
 	unset arrow 1
-	set output sprintf("%s/%s-records/rec_%02d.png", folder, folder, i);
-	plot sprintf("%s/records.txt", folder) index i with lines ls 1 ti "";
+	set output sprintf("Average/rec%03d.png", i);
+	plot sprintf("Average/rec%03d.txt", folder) index 0 with lines ls 1 ti "";
 }
 	
 set ylabel "" 
@@ -120,3 +112,11 @@ do for[i=0:9] {
 	set output sprintf("%s/%s-subimpulses/sub_%02d-spec.png", folder, folder, i);
 	plot sprintf("%s/subimpulses-spec.txt", folder) index i with lines ls 1 ti "";
 }
+
+set autoscale xy
+set ylabel "Permittivity" 
+set xlabel "" 
+set label 1 "{/Symbol e}" at graph -0.15, 1
+set label 2 "z" at graph 1, -0.15
+set output sprintf("%s/%s-Diel-Cond.png", folder, folder);
+plot sprintf("%s/dielcond.txt", folder) with lines ls 1 ti "";

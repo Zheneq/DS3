@@ -1,5 +1,8 @@
 #include "global.h"
 
+#define _USE_MATH_DEFINES
+#include <math.h>
+
 INIReader *config = NULL;
 EnvInfo *info = NULL;
 
@@ -8,6 +11,8 @@ double realxe(int i) { return i*info->hs - info->lz0; }
 double realxh(int i) { return realxe(i) + info->hs * .5; }
 double realte(int i) { return i*info->ts; }
 double realth(int i) { return realte(i) + info->ts * .5; }
+double realspec(int i) { return 2 * M_PI * i / info->lz; }
+double realspect(int i) { return 2 * M_PI * i / info->lt; }
 int idxxe(double x) { return (int)(round((x + info->lz0) / info->hs)); }
 
 inline double DielCond(int x, int t)
@@ -53,7 +58,7 @@ FILE *GetFile(const char *name)
 	{
 		char Error[544];
 		sprintf(Error, "Cannot create file: %s", DumpPath);
-		throw(DumpPath);
+		throw(Error);
 	}
 
 	return f;
