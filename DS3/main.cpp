@@ -96,10 +96,10 @@ void Load(int argc, char **argv)
 
 	obs = new ObsModule;
 
-	obs->AddObserver(idxxe(-50));
+	obs->AddObserver(idxxe(-100));
 	//obs->AddObserver(idxxe(-250));
 	//obs->AddObserver(idxxe(-500));
-	obs->AddObserver(idxxe(400));
+	obs->AddObserver(idxxe(450));
 	//obs->AddObserver(idxxe(530));
 	//obs->AddObserver(idxxe(780));
 
