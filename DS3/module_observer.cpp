@@ -36,6 +36,7 @@ void ObsModule::Tick(int time)
 
 void ObsModule::PostCalc(int time)
 {
+	// Dump all records into single file and reset recheads
 	FILE *f = GetFile("records");
 	for (auto& RC : RecHeads)
 	{
@@ -50,6 +51,17 @@ void ObsModule::PostCalc(int time)
 		RC->data = NULL;
 	}
 	fclose(f);
+
+
+	Average();
+
+	printf("\n ");
+	for (auto& RC : RecHeads)
+	{
+		delete RC->data;
+		RC->data = nullptr;
+		printf("I have %d records. \n", RC->Records.size());
+	}
 }
 
 void ObsModule::Average()
