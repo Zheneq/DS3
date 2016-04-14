@@ -80,9 +80,9 @@ EnvInfo::EnvInfo()
 
 	// Инициализация классов поля
 	h = new field();
-	h->Init(nz, FFTW_MEASURE);
+	h->Init(nz, FFTW_ESTIMATE);
 	e = new field();
-	e->Init(nz, FFTW_MEASURE);
+	e->Init(nz, FFTW_ESTIMATE);
 
 	h_cache = e_cache = NULL;
 }
