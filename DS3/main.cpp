@@ -146,6 +146,8 @@ int main(int argc, char **argv)
 			for (auto m : modules)
 				m->Init();
 
+			///////////////////////////////
+
 			char *m = new char[128];
 			Log("Structure");
 			for (int i = 0; i < info->LayerCount; ++i)
@@ -154,6 +156,19 @@ int main(int argc, char **argv)
 				Log(m);
 			}
 			Log("Structure end");
+
+			field* dp = new field;
+			dp->Init(info->nz, FFTW_ESTIMATE);
+			for (int i = 0; i < dp->GetLen(); ++i)
+			{
+				dp->data[i] = DielCond(i);
+			}
+
+			FILE *f = GetFile("DielCond");
+			dp->DumpFullPrecision(f, NULL);
+			fclose(f);
+
+			///////////////////////////////
 
 			// Просчёт
 			int time;
