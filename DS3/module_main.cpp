@@ -40,3 +40,44 @@ void MainModule::Tick(int time)
 		delete fn;
 	}
 }
+
+void MainModule::PostCalc(int time)
+{
+
+	// Dump last frame
+	char* fn = new char[256];
+	sprintf(fn, "e_frame%06d", time);
+	FILE *f = GetFile(fn);
+	sprintf(fn, "e-spec_frame%06d", time);
+	FILE *fs = GetFile(fn);
+	info->e->Fourier();
+	info->e->DumpFullPrecision(f, fs);
+	fclose(f);
+	fclose(fs);
+	delete fn;
+
+	int l, r;
+	for (int i = 0; i < info->e->GetLen(); ++i)
+	{
+		if (abs(info->e->data[i]) > 1e-8)
+		{
+			l = i;
+			break;
+		}
+
+	}
+	for (int i = info->e->GetLen() - 1; i >= 0 ; --i)
+	{
+		if (abs(info->e->data[i]) > 1e-8)
+		{
+			r = i;
+			break;
+		}
+
+	}
+
+	char* msg = new char[256];
+	sprintf(msg, "%lf - %lf", realxe(l), realxe(r));
+	Log(msg);
+	delete msg;
+}

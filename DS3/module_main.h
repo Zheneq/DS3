@@ -9,4 +9,5 @@ private:
 public:
 	virtual void Init();
 	virtual void Tick(int time);
+	void PostCalc(int time);
 };
