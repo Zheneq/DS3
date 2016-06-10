@@ -111,7 +111,7 @@ void NRGModule::Dump(int time)
 
 void NRGModule::PostCalc(int time)
 {
-	for (int i = 0; i < ARRAYSIZE(dmp); ++i)
+	for (int i = 0; i < 3; ++i)
 	{
 		fclose(dmp[i].file);
 	}
