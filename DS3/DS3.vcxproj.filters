@@ -54,6 +54,9 @@
     <ClCompile Include="module_observer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="module_inv.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="module.h">
@@ -84,6 +87,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="module_observer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="module_inv.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

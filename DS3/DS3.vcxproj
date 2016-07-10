@@ -85,6 +85,7 @@
     <ClCompile Include="field.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="module_cacher.cpp" />
+    <ClCompile Include="module_inv.cpp" />
     <ClCompile Include="module_main.cpp" />
     <ClCompile Include="module_observer.cpp" />
     <ClCompile Include="module_refl_trans.cpp" />
@@ -97,6 +98,7 @@
     <ClInclude Include="global.h" />
     <ClInclude Include="module.h" />
     <ClInclude Include="module_cacher.h" />
+    <ClInclude Include="module_inv.h" />
     <ClInclude Include="module_main.h" />
     <ClInclude Include="module_nrg.h" />
     <ClInclude Include="module_observer.h" />
