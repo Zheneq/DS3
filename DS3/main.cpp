@@ -16,6 +16,7 @@
 #include "module_specstats.h"
 #include "module_cacher.h"
 #include "module_observer.h"
+#include "module_inv.h"
 
 using namespace std;
 
@@ -99,12 +100,13 @@ void Load(int argc, char **argv)
 	obs->AddObserver(idxxe(-100));
 	//obs->AddObserver(idxxe(-250));
 	//obs->AddObserver(idxxe(-500));
-	obs->AddObserver(idxxe(450));
+	obs->AddObserver(idxxe(130));
 	//obs->AddObserver(idxxe(530));
 	//obs->AddObserver(idxxe(780));
 
 	modules.push_back(new MainModule);
-	modules.push_back(new NRGModule);
+//	modules.push_back(new NRGModule);
+	modules.push_back(new InvModule);
 //	modules.push_back(new RTModule);
 	modules.push_back(new SSModule);
 	modules.push_back(obs);
