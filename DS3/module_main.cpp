@@ -5,6 +5,7 @@
 void MainModule::Init()
 {
 	StructureLeftEdge = config->GetReal("Data", "Left", 0.0);
+	DumpFrameStep = config->GetReal("Data", "FrameStep", 0); 
 
 }
 
@@ -25,8 +26,8 @@ void MainModule::Tick(int time)
 	}
 	info->h->data[info->nz - 1] = 0;
 
-	// Dump first frame
-	if (time == 1)
+	// Dump frames
+	if (time % DumpFrameStep == 1)
 	{
 		char* fn = new char[256];
 		sprintf(fn, "e_frame%06d", time);
@@ -34,7 +35,7 @@ void MainModule::Tick(int time)
 		sprintf(fn, "e-spec_frame%06d", time);
 		FILE *fs = GetFile(fn);
 		info->e->Fourier();
-		info->e->DumpFullPrecision(f, fs);
+		info->e->Dump(f, fs);
 		fclose(f);
 		fclose(fs);
 		delete fn;
@@ -51,11 +52,12 @@ void MainModule::PostCalc(int time)
 	sprintf(fn, "e-spec_frame%06d", time);
 	FILE *fs = GetFile(fn);
 	info->e->Fourier();
-	info->e->DumpFullPrecision(f, fs);
+	info->e->Dump(f, fs);
 	fclose(f);
 	fclose(fs);
 	delete fn;
 
+	// Impulse bounds
 	int l, r;
 	for (int i = 0; i < info->e->GetLen(); ++i)
 	{
