@@ -5,7 +5,7 @@
 void MainModule::Init()
 {
 	StructureLeftEdge = config->GetReal("Data", "Left", 0.0);
-	DumpFrameStep = config->GetReal("Data", "FrameStep", 0); 
+	DumpFrameStep = config->GetReal("Data", "FrameStep", 1e10); 
 
 }
 
