@@ -90,10 +90,10 @@ void ObsModule::Average()
 		FILE *fs = GetFile(fn);
 
 		RC->data->DumpFullPrecision(f, fs, realte, realspect);
-		for (auto rec : RC->Records)
-		{
-			rec->DumpFullPrecision(f, fs, realte, realspect);
-		}
+		//for (auto rec : RC->Records)
+		//{
+		//	rec->DumpFullPrecision(f, fs, realte, realspect);
+		//}
 
 		fclose(f);
 		fclose(fs);
