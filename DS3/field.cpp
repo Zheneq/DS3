@@ -75,19 +75,17 @@ void field::DumpFullPrecision(char *name, double(*transform)(int), double(*trans
 
 void field::DumpFullPrecision(FILE *DataFile, FILE *SpecFile, double(*transform)(int), double(*transformspec)(int))
 {
-	char fn[256];
-
 	if (DataFile)
 	{
 		for (int i = 0; i < n; ++i)
-			fprintf(DataFile, "%e %e\n", transform(i), data[i]);
+			fprintf(DataFile, "%e %.15e\n", transform(i), data[i]);
 		fprintf(DataFile, "\n\n");
 	}
 
 	if (SpecFile)
 	{
 		for (int i = 0; i <= n / 2; ++i)
-			fprintf(SpecFile, "%e %e\n", transformspec(i), spec[i]);
+			fprintf(SpecFile, "%.10e %.15e\n", transformspec(i), spec[i]);
 		fprintf(SpecFile, "\n\n");
 	}
 }

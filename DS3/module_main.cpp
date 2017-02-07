@@ -52,7 +52,7 @@ void MainModule::PostCalc(int time)
 	sprintf(fn, "e-spec_frame%06d", time);
 	FILE *fs = GetFile(fn);
 	info->e->Fourier();
-	info->e->Dump(f, fs);
+	info->e->DumpFullPrecision(f, fs);
 	fclose(f);
 	fclose(fs);
 	delete fn;

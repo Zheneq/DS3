@@ -1,0 +1,69 @@
+set terminal pngcairo enhanced dashed font "Calibri, 50" size 1300,1000
+set border 3 lw 4
+set xtics nomirror
+set ytics nomirror
+
+set style line 1 lc rgb 'black' lw 4 lt -1 pt 7
+set style line 2 lc rgb 'black' lw 4 lt 0  pt 7
+set style line 3 lc rgb 'black' lw 4 lt 7  pt 7
+
+set arrow 1;
+
+do for[j=0:31] {
+	do for[i=0:1] {
+		set terminal pngcairo enhanced dashed font "Calibri, 70" size 5000,1000
+		unset xlabel
+		unset ylabel
+		set label 1 "E" at graph 0.02, 1
+		set label 2 "t" at graph 1, 0.15
+		set autoscale xy
+		unset arrow 1
+		set output sprintf("rec-%03d-%03d.png", i, j);
+		plot sprintf("E%03d/rec%03d.txt", j, i) index 0 with lines ls 1 ti "";
+		
+		set terminal pngcairo enhanced dashed font "Calibri, 50" size 1300,1000
+		set style line 4 lc rgb 'black' lw 2 dt 2 pt 1
+		unset label 1
+		unset label 2
+		set label 1 "|E_{/Symbol w}|^2"  at graph 0.02, 1
+		set label 2 "{/Symbol w}" at graph 1, 0.1
+		set xrange[cf-0.5:cf+0.5]
+		#set arrow 1 from graph 1,0 to graph 1,0.5 nohead ls 2;
+		set arrow 1 from graph 0.5,0 to graph 0.5,1 nohead ls 4;
+		set output sprintf("rec-spec-%03d-%03d.png", i, j);
+		plot sprintf("E%03d/rec%03d-spec.txt", j, i) index 0 with lines ls 1 ti "";
+	}
+		
+	set terminal pngcairo enhanced dashed font "Calibri, 70" size 5000,1000
+	set autoscale xy
+	set label 1 "{/Symbol e}" at graph -0.15, 1
+	set label 2 "z" at graph 1, -0.15
+	set output sprintf("Diel-Cond-%03d.png", j);
+	plot sprintf("E%03d/dielcond.txt", j) with lines ls 1 ti "";
+}
+
+
+do for[i=0:1] {
+	set terminal pngcairo enhanced dashed font "Calibri, 70" size 5000,1000
+	unset xlabel
+	unset ylabel
+	set label 1 "E" at graph 0.02, 1
+	set label 2 "t" at graph 1, 0.15
+	set autoscale xy
+	unset arrow 1
+	set output sprintf("Average%03d/rec%03d.png", j+1, i);
+	plot sprintf("Average%03d/rec%03d.txt", j+1, i) index 0 with lines ls 1 ti "";
+	
+	set terminal pngcairo enhanced dashed font "Calibri, 50" size 1300,1000
+	set style line 4 lc rgb 'black' lw 2 dt 2 pt 1
+	unset label 1
+	unset label 2
+	set label 1 "|E_{/Symbol w}|^2"  at graph 0.02, 1
+	set label 2 "{/Symbol w}" at graph 1, 0.1
+	set xrange[cf-0.5:cf+0.5]
+	#set arrow 1 from graph 1,0 to graph 1,0.5 nohead ls 2;
+	set arrow 1 from graph 0.5,0 to graph 0.5,1 nohead ls 4;
+	unset arrow 1
+	set output sprintf("Average%03d/rec%03d-spec.png", j+1, i);
+	plot sprintf("Average%03d/rec%03d-spec.txt", j+1, i) index 0 with lines ls 1 ti "";
+}
