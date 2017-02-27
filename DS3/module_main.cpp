@@ -14,17 +14,17 @@ void MainModule::Tick(int time)
 	if (time < 0) return;
 	//*
 	// Считаем поле
-	for (int j = 0; j < info->nz - 1; j++)
+	info->e->data[0] = info->e->data[1]; // Неотражающее условие
+	for (int j = 1; j < info->nz; j++)
 	{
-		info->e->data[j + 1] = (info->e->data[j + 1] * DielCond(j + 1, time - 1) - (info->h->data[j + 1] - info->h->data[j])*info->ts / info->hs) / DielCond(j + 1, time);
+		info->e->data[j] = (1.0 / (1.0 + 0.5 * info->ts * Absorption(j) / DielCond(j))) * (info->e->data[j] * (1.0 - 0.5 * info->ts * Absorption(j) / DielCond(j)) - (info->ts / (info->hs * DielCond(j))) * (info->h->data[j] - info->h->data[j-1]));
 	}
-	info->e->data[0] = 0;
 
+	info->h->data[info->nz - 1] = info->h->data[info->nz - 2]; // Неотражающее условие
 	for (int j = 0; j<info->nz - 1; j++)
 	{
 		info->h->data[j] = info->h->data[j] - (info->e->data[j + 1] - info->e->data[j])*info->ts / info->hs;
 	}
-	info->h->data[info->nz - 1] = 0;
 
 	// Dump frames
 	if (time % DumpFrameStep == 1)

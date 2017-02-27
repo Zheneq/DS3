@@ -7,13 +7,14 @@ void ObsModule::Init()
 	Tick(0);
 }
 
-void ObsModule::AddObserver(int x)
+void ObsModule::AddObserver(int x, const char* name)
 {
 	RecHeads.push_back(new RecHead(x, info->nt));
+	RecHeadNames.push_back(string(name));
 	//RecHeads.back()->Init();
 
 	char *msg = new char[256];
-	sprintf(msg, "Observer %02d at %f", RecHeads.size() - 1, realxe(x));
+	sprintf_s(msg, 256, "Observer %02d (%s) at %f", RecHeads.size() - 1, RecHeadNames.back().c_str(), realxe(x));
 	Log(msg);
 	delete[] msg;
 }

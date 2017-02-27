@@ -16,6 +16,8 @@ EnvInfo::EnvInfo()
 	DP[1] = config->GetReal("Data", "Eps2", 0.0);
 	DPMaxDivergenceRel = config->GetReal("Data", "EpsMaxDivergenceRel", 0.1);
 
+	AbsorbHalfWidth = config->GetReal("Data", "AbsorbHalfWidth", 0.0);
+
 	StructureLeftEdge = config->GetReal("Data", "Left", 0.0);
 	LayerWidth[0] = config->GetReal("Data", "LayerWidth1", 0.0);
 	LayerWidth[1] = config->GetReal("Data", "LayerWidth2", 0.0);
@@ -24,6 +26,10 @@ EnvInfo::EnvInfo()
 
 	LayerWidthDistribution = std::uniform_real_distribution<double>(1.0 - LayerWidthMaxDivergenceRel, 1.0 + LayerWidthMaxDivergenceRel);
 	DPDistribution = std::uniform_real_distribution<double>(1.0 - DPMaxDivergenceRel, 1.0 + DPMaxDivergenceRel);
+
+	AbsorbCoef = config->GetReal("Data", "AbsorbCoef", 1.0);
+	// AbsorbCenter = config->GetReal("Data", "AbsorbCenter", 0.0);
+	int AbsorbLayer = config->GetInteger("Data", "AbsorbLayer", 0);
 
 	// Инициализация
 	lz0 = lz / 2;
@@ -65,6 +71,8 @@ EnvInfo::EnvInfo()
 		Layers[LayerCount - 1].right = Layers[LayerCount - 1].left + LayerWidth[1] * LayerWidthDistribution(*gen);
 		Layers[LayerCount - 1].dc = DP[1] * DPDistribution(*gen);
 	}
+
+	AbsorbCenter = .5 * (Layers[AbsorbLayer].right + Layers[AbsorbLayer].left);
 	
 	printf("Layers: \n");
 	for (int i = 0; i < LayerCount; ++i)

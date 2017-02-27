@@ -25,6 +25,9 @@ public:
 	double DP[2];
 	double DPMaxDivergenceRel;
 
+	// Поглощение (см. double Absorption(int x) @ ds3.cpp)
+	double AbsorbCoef, AbsorbCenter, AbsorbHalfWidth;
+
 	Layer *Layers; // Границы подслоёв
 	int LayerCount; // Число подслоёв
 	double LayerWidth[2]; // Ширины подслоёв (чередуются)

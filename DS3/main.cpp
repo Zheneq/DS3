@@ -28,11 +28,12 @@ default_random_engine *gen = NULL;
 
 int ExperimentNum = -1, ExperimentCount = -1;
 
-void Log(const char *msg)
+void Log(const char *msg, bool bToConsole)
 {
 	if (!LogFile) throw("No log file!");
 
 	fprintf(LogFile, "%s\n", msg);
+	printf("\n\tLog:\t%s\n", msg);
 }
 
 void Load(int argc, char **argv)
@@ -97,10 +98,10 @@ void Load(int argc, char **argv)
 
 	obs = new ObsModule;
 
-	obs->AddObserver(idxxe(-100));
+	obs->AddObserver(idxxe(-50), "refl");
 	//obs->AddObserver(idxxe(-250));
 	//obs->AddObserver(idxxe(-500));
-	obs->AddObserver(idxxe(130));
+	obs->AddObserver(idxxe(145), "trans");
 	//obs->AddObserver(idxxe(530));
 	//obs->AddObserver(idxxe(780));
 
@@ -137,7 +138,7 @@ int main(int argc, char **argv)
 {
 	try
 	{
-		gen = new default_random_engine(time(0));
+		gen = new default_random_engine((unsigned int)time(0));
 
 		Load(argc, argv);
 
@@ -168,6 +169,18 @@ int main(int argc, char **argv)
 
 			FILE *f = GetFile("DielCond");
 			dp->DumpFullPrecision(f, NULL);
+			fclose(f);
+
+
+			field* ab = new field;
+			ab->Init(info->nz, FFTW_ESTIMATE);
+			for (int i = 0; i < ab->GetLen(); ++i)
+			{
+				ab->data[i] = Absorption(i);
+			}
+
+			f = GetFile("Absorption");
+			ab->DumpFullPrecision(f, NULL);
 			fclose(f);
 
 			///////////////////////////////

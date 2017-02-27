@@ -15,7 +15,7 @@ double realspec(int i) { return 2 * M_PI * i / info->lz; }
 double realspect(int i) { return 2 * M_PI * i / info->lt; }
 int idxxe(double x) { return (int)(round((x + info->lz0) / info->hs)); }
 
-inline double DielCond(int x, int t)
+inline double DielCond(int x/*, int t*/)
 {
 	register double rx = realxe(x);
 
@@ -26,13 +26,33 @@ inline double DielCond(int x, int t)
 	{
 		// Если мы попали на границу
 		if (abs(rx - info->Layers[i].left) < info->hs*.5 || abs(rx - info->Layers[i].right) < info->hs*.5)
-			return .5*(DielCond(x - 1, t) + DielCond(x + 1, t));
+			return .5*(DielCond(x - 1/*, t*/) + DielCond(x + 1/*, t*/));
 		// Если мы попали в подслой
 		if (rx > info->Layers[i].left && rx < info->Layers[i].right)
 			return info->Layers[i].dc;
 	}
 	// Если мы никуда не попали
 	return 1;
+}
+
+double Absorption(int x)
+{
+	// gauss
+	double rx = realxe(x);
+	return info->AbsorbCoef * exp(-pow((rx - info->AbsorbCenter) / info->AbsorbHalfWidth, 2));
+
+	// rectangle
+	/*
+	int l = idxxe(info->AbsorbCenter - info->AbsorbHalfWidth), r = idxxe(info->AbsorbCenter + info->AbsorbHalfWidth);
+
+	if (x > l && x < r)
+		return info->AbsorbCoef;
+
+	if (x == l || x == r)
+		return .5 * info->AbsorbCoef;
+
+	return 0.0;
+	//*/
 }
 
 double Energy(int x, int t)

@@ -39,7 +39,10 @@ double realspec(int i);
 double realspect(int i);
 int idxxe(double x);
 
-inline double DielCond(int x, int t = 0);
+inline double DielCond(int x/*, int t = 0*/);
+inline double DielCond(int x, int t) { return DielCond(x); }
+
+double Absorption(int x);
 
 double Energy(int x, int t);
 
@@ -47,4 +50,4 @@ double ElecEnergy(int x, int t);
 
 FILE *GetFile(const char *name);
 
-void Log(const char *msg);
+void Log(const char *msg, bool bToConsole = true);

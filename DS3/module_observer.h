@@ -33,6 +33,7 @@ struct RecHead
 class ObsModule : public Module
 {
 	vector<RecHead*> RecHeads;
+	vector<string> RecHeadNames;
 public:
 	~ObsModule();
 	virtual void Init();
@@ -40,5 +41,5 @@ public:
 	virtual void PostCalc(int time);
 	virtual void Average();
 
-	void AddObserver(int x);
+	void AddObserver(int x, const char* name);
 };
