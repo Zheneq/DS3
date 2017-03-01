@@ -6,8 +6,8 @@ class SSModule : public Module
 private:
 
 public:
-	virtual void Init();
-	virtual void Tick(int time);
+	virtual void Init() override;
+	virtual void Tick(int time) override;
 
 	//==========================================
 	double integ;

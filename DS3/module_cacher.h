@@ -4,6 +4,6 @@
 class CacheModule : public Module
 {
 public:
-	void Init();
-	void PostCalc(int time);
+	void Init() override;
+	void PostCalc(int time) override;
 };

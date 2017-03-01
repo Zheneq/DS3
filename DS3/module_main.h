@@ -9,7 +9,7 @@ private:
 	int DumpFrameStep; // Шаг дампа
 
 public:
-	virtual void Init();
-	virtual void Tick(int time);
-	void PostCalc(int time);
+	virtual void Init() override;
+	virtual void Tick(int time) override;
+	void PostCalc(int time) override;
 };

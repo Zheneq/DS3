@@ -7,6 +7,12 @@ void MainModule::Init()
 	StructureLeftEdge = config->GetReal("Data", "Left", 0.0);
 	DumpFrameStep = config->GetReal("Data", "FrameStep", 1e10); 
 
+	// Начальные значения
+	double xe = realxe(0);
+	for (int i = 0; i<info->nz; xe += info->hs, ++i)
+	{
+		info->h->data[i] = info->e->data[i] = exp(-((xe*xe) / (info->a*info->a)))*cos(info->cf*xe);
+	}
 }
 
 void MainModule::Tick(int time)

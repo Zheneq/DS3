@@ -18,9 +18,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="ds3.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="module_main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -45,9 +42,6 @@
     <ClCompile Include="..\Inih\ini.c">
       <Filter>Third-Party</Filter>
     </ClCompile>
-    <ClCompile Include="env.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="module_cacher.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -55,6 +49,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="module_inv.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="experiment.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="medium.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -80,9 +80,6 @@
     <ClInclude Include="module_specstats.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="env.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="module_cacher.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -90,6 +87,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="module_inv.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="experiment.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="medium.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -19,5 +19,5 @@ public:
 	virtual void Init() {};
 	virtual void Tick(int time) {};
 	virtual void PostCalc(int time) {};
-	virtual void Average() {};
+	virtual void Average(std::vector<Module*> modules) {};
 };

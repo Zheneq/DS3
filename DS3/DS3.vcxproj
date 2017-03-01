@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
       <Configuration>Debug</Configuration>
@@ -19,13 +19,13 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v120</PlatformToolset>
+    <PlatformToolset>v140</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v120</PlatformToolset>
+    <PlatformToolset>v140</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
@@ -80,10 +80,10 @@
   <ItemGroup>
     <ClCompile Include="..\Inih\cpp\INIReader.cpp" />
     <ClCompile Include="..\Inih\ini.c" />
-    <ClCompile Include="ds3.cpp" />
-    <ClCompile Include="env.cpp" />
+    <ClCompile Include="experiment.cpp" />
     <ClCompile Include="field.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="medium.cpp" />
     <ClCompile Include="module_cacher.cpp" />
     <ClCompile Include="module_inv.cpp" />
     <ClCompile Include="module_main.cpp" />
@@ -93,9 +93,10 @@
     <ClCompile Include="module_specstats.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="env.h" />
+    <ClInclude Include="experiment.h" />
     <ClInclude Include="field.h" />
     <ClInclude Include="global.h" />
+    <ClInclude Include="medium.h" />
     <ClInclude Include="module.h" />
     <ClInclude Include="module_cacher.h" />
     <ClInclude Include="module_inv.h" />

@@ -58,8 +58,8 @@ private:
 
 	double NrgInside = 0;
 public:
-	virtual void Init();
-	virtual void Tick(int time);
-	virtual void PostCalc(int time);
+	virtual void Init() override;
+	virtual void Tick(int time) override;
+	virtual void PostCalc(int time) override;
 	void Dump(int time);
 };

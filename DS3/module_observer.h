@@ -36,10 +36,10 @@ class ObsModule : public Module
 	vector<string> RecHeadNames;
 public:
 	~ObsModule();
-	virtual void Init();
-	virtual void Tick(int time);
-	virtual void PostCalc(int time);
-	virtual void Average();
+	virtual void Init() override;
+	virtual void Tick(int time) override;
+	virtual void PostCalc(int time) override;
+	virtual void Average() override;
 
 	void AddObserver(int x, const char* name);
 };
