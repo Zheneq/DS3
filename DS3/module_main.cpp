@@ -1,14 +1,14 @@
 #include "module_main.h"
 #include <cmath>
 #include "../FFTW/fftw3.h"
+#include "experiment.h"
 
 void MainModule::Init()
 {
-	StructureLeftEdge = config->GetReal("Data", "Left", 0.0);
-	DumpFrameStep = config->GetReal("Data", "FrameStep", 1e10); 
+	const auto info = experiment->medium;
 
 	// Начальные значения
-	double xe = realxe(0);
+	double xe = info->realxe(0);
 	for (int i = 0; i<info->nz; xe += info->hs, ++i)
 	{
 		info->h->data[i] = info->e->data[i] = exp(-((xe*xe) / (info->a*info->a)))*cos(info->cf*xe);
@@ -17,13 +17,15 @@ void MainModule::Init()
 
 void MainModule::Tick(int time)
 {
+	const auto info = experiment->medium;
+
 	if (time < 0) return;
 	//*
 	// Считаем поле
 	info->e->data[0] = info->e->data[1]; // Неотражающее условие
 	for (int j = 1; j < info->nz; j++)
 	{
-		info->e->data[j] = (1.0 / (1.0 + 0.5 * info->ts * Absorption(j) / DielCond(j))) * (info->e->data[j] * (1.0 - 0.5 * info->ts * Absorption(j) / DielCond(j)) - (info->ts / (info->hs * DielCond(j))) * (info->h->data[j] - info->h->data[j-1]));
+		info->e->data[j] = (1.0 / (1.0 + 0.5 * info->ts * info->Absorption(j) / info->DielCond(j))) * (info->e->data[j] * (1.0 - 0.5 * info->ts * info->Absorption(j) / info->DielCond(j)) - (info->ts / (info->hs * info->DielCond(j))) * (info->h->data[j] - info->h->data[j-1]));
 	}
 
 	info->h->data[info->nz - 1] = info->h->data[info->nz - 2]; // Неотражающее условие
@@ -33,35 +35,34 @@ void MainModule::Tick(int time)
 	}
 
 	// Dump frames
-	if (time % DumpFrameStep == 1)
+	if (time % info->DumpFrameStep == 1)
 	{
-		char* fn = new char[256];
-		sprintf(fn, "e_frame%06d", time);
-		FILE *f = GetFile(fn);
-		sprintf(fn, "e-spec_frame%06d", time);
-		FILE *fs = GetFile(fn);
+		char fn[256];
+		sprintf_s(fn, "e_frame%06d", time);
+		FILE *f = experiment->GetFile(fn);
+		sprintf_s(fn, "e-spec_frame%06d", time);
+		FILE *fs = experiment->GetFile(fn);
 		info->e->Fourier();
-		info->e->Dump(f, fs);
+		info->e->Dump(f, fs, info);
 		fclose(f);
 		fclose(fs);
-		delete fn;
 	}
 }
 
 void MainModule::PostCalc(int time)
 {
+	const auto info = experiment->medium;
 
 	// Dump last frame
-	char* fn = new char[256];
-	sprintf(fn, "e_frame%06d", time);
-	FILE *f = GetFile(fn);
-	sprintf(fn, "e-spec_frame%06d", time);
-	FILE *fs = GetFile(fn);
+	char fn[256];
+	sprintf_s(fn, "e_frame%06d", time);
+	FILE *f = experiment->GetFile(fn);
+	sprintf_s(fn, "e-spec_frame%06d", time);
+	FILE *fs = experiment->GetFile(fn);
 	info->e->Fourier();
-	info->e->DumpFullPrecision(f, fs);
+	info->e->DumpFullPrecision(f, fs, info);
 	fclose(f);
 	fclose(fs);
-	delete fn;
 
 	// Impulse bounds
 	int l, r;
@@ -84,8 +85,7 @@ void MainModule::PostCalc(int time)
 
 	}
 
-	char* msg = new char[256];
-	sprintf(msg, "%lf - %lf", realxe(l), realxe(r));
-	Log(msg);
-	delete msg;
+	char msg[256];
+	sprintf_s(msg, "%lf - %lf", info->realxe(l), info->realxe(r));
+	experiment->Log(msg);
 }

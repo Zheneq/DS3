@@ -1,5 +1,7 @@
 #include "module_observer.h"
+#include "experiment.h"
 
+// const auto info = experiment->medium;
 void ObsModule::Init()
 {
 	for (auto rc : RecHeads)
@@ -9,13 +11,13 @@ void ObsModule::Init()
 
 void ObsModule::AddObserver(int x, const char* name)
 {
-	RecHeads.push_back(new RecHead(x, info->nt));
+	RecHeads.push_back(new RecHead(x, experiment->medium->nt));
 	RecHeadNames.push_back(string(name));
 	//RecHeads.back()->Init();
 
 	char *msg = new char[256];
-	sprintf_s(msg, 256, "Observer %02d (%s) at %f", RecHeads.size() - 1, RecHeadNames.back().c_str(), realxe(x));
-	Log(msg);
+	sprintf_s(msg, 256, "Observer %02d (%s) at %f", RecHeads.size() - 1, RecHeadNames.back().c_str(), experiment->medium->realxe(x));
+	experiment->Log(msg);
 	delete[] msg;
 }
 
@@ -31,44 +33,33 @@ void ObsModule::Tick(int time)
 {
 	for (auto& RC : RecHeads)
 	{
-		RC->data->data[time] = info->e->data[RC->idx];
+		RC->data->data[time] = experiment->medium->e->data[RC->idx];
 	}
 }
 
 void ObsModule::PostCalc(int time)
 {
-	// Dump all records into single file and reset recheads
-	FILE *f = GetFile("records");
+	// Dump all records into single file
+	FILE *f = experiment->GetFile("records");
 	for (auto& RC : RecHeads)
 	{
 		RC->Records.push_back(RC->data);
 
 		for (int i = 0; i < RC->get_len(); ++i)
 		{
-			fprintf(f, "%e, %e\n", realte(i), RC->data->data[i]);
+			fprintf(f, "%e, %e\n", experiment->medium->realte(i), RC->data->data[i]);
 		}
 		fprintf(f, "\n\n");
 
 		RC->data = NULL;
 	}
 	fclose(f);
-
-
-	Average();
-
-	printf("\n ");
-	for (auto& RC : RecHeads)
-	{
-		delete RC->data;
-		RC->data = nullptr;
-		printf("I have %d records. \n", RC->Records.size());
-	}
 }
 
 void ObsModule::Average()
 {
 	int idx = 0;
-	char *fn = new char[64];
+	char fn[64];
 	for (auto& RC : RecHeads)
 	{
 		RC->Init();
@@ -85,22 +76,16 @@ void ObsModule::Average()
 
 		RC->data->Fourier();
 
-		sprintf(fn, "rec%03d", idx);
-		FILE *f = GetFile(fn);
-		sprintf(fn, "rec%03d-spec", idx);
-		FILE *fs = GetFile(fn);
+		sprintf_s(fn, "rec%03d", idx);
+		FILE *f = experiment->GetFile(fn);
+		sprintf_s(fn, "rec%03d-spec", idx);
+		FILE *fs = experiment->GetFile(fn);
 
-		RC->data->DumpFullPrecision(f, fs, realte, realspect);
-		//for (auto rec : RC->Records)
-		//{
-		//	rec->DumpFullPrecision(f, fs, realte, realspect);
-		//}
+		RC->data->DumpFullPrecision(f, fs, experiment->medium, &Medium::realte, &Medium::realspect);
 
 		fclose(f);
 		fclose(fs);
 
 		idx++;
 	}
-
-	delete[] fn;
 }

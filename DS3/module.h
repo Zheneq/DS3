@@ -1,23 +1,17 @@
 #pragma once
-#include <list>
-
-using namespace std;
-
-struct DataMapping
-{
-	std::string String;
-	std::string Type;
-	void *Ptr;
-	char *Default;
-};
+#include <vector>
+class Experiment;
 
 class Module
 {
-private:
+protected:
+	Experiment* experiment;
 
 public:
+	explicit Module(Experiment* e = nullptr) : experiment(e) {};
 	virtual void Init() {};
 	virtual void Tick(int time) {};
 	virtual void PostCalc(int time) {};
-	virtual void Average(std::vector<Module*> modules) {};
+	virtual void Collect(std::vector<Module*> modules) {};
+	virtual void Average() {};
 };

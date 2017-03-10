@@ -1,10 +1,8 @@
 #pragma once
 #include "global.h"
 #include "../FFTW/fftw3.h"
+#include "medium.h"
 
-// Forward decl
-double realxe(int i);
-double realspec(int i);
 
 class field
 {
@@ -12,7 +10,7 @@ private:
 	int n;
 	fftw_complex *sp;
 	fftw_plan forward, backward;
-	void Dump_Sub(FILE *file, double *data, int n, double (* transform)(int));
+	void Dump_Sub(FILE *file, double *data, int n, Medium* medium, double(Medium::*transform)(int));
 public:
 	double *data;
 	double *spec;
@@ -20,8 +18,8 @@ public:
 	void Fourier(bool back = false);
 	void Free();
 	int GetLen() { return n; }
-	void Dump(char *name, double(*transform)(int) = realxe, double(*transformspec)(int) = realspec);
-	void DumpFullPrecision(char *name, double(*transform)(int) = realxe, double(*transformspec)(int) = realspec);
-	void Dump(FILE *DataFile, FILE *SpecFile, double(*transform)(int) = realxe, double(*transformspec)(int) = realspec);
-	void DumpFullPrecision(FILE *DataFile, FILE *SpecFile, double(*transform)(int) = realxe, double(*transformspec)(int) = realspec);
+//	void Dump(char *name, Medium* medium, double(Medium::*transform)(int) = &Medium::realxe, double(Medium::*transformspec)(int) = &Medium::realspec);
+//	void DumpFullPrecision(char *name, Medium* medium, double(Medium::*transform)(int) = &Medium::realxe, double(Medium::*transformspec)(int) = &Medium::realspec);
+	void Dump(FILE *DataFile, FILE *SpecFile, Medium* medium, double(Medium::*transform)(int) = &Medium::realxe, double(Medium::*transformspec)(int) = &Medium::realspec);
+	void DumpFullPrecision(FILE *DataFile, FILE *SpecFile, Medium* medium, double(Medium::*transform)(int) = &Medium::realxe, double(Medium::*transformspec)(int) = &Medium::realspec);
 };

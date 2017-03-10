@@ -46,65 +46,69 @@ void field::Free()
 	free(data);
 }
 
-void field::Dump(char *name, double(*transform)(int), double(*transformspec)(int))
+/*
+void field::Dump(char *name, Medium* medium, double(Medium::*transform)(int), double(Medium::*transformspec)(int))
 {
 	char fn[256];
-	Dump_Sub(GetFile(name), data, n, transform);
+	Dump_Sub(GetFile(name), data, n, medium, transform);
 	sprintf(fn, "%s-spec", name);
-	Dump_Sub(GetFile(fn), spec, n / 2 + 1, transformspec);
+	Dump_Sub(GetFile(fn), spec, n / 2 + 1, medium, transformspec);
 }
+//*/
 
-void field::Dump(FILE *DataFile, FILE *SpecFile, double(*transform)(int), double(*transformspec)(int))
+void field::Dump(FILE *DataFile, FILE *SpecFile, Medium* medium, double(Medium::*transform)(int), double(Medium::*transformspec)(int))
 {
 	if (DataFile)
-		Dump_Sub(DataFile, data, n, transform);
+		Dump_Sub(DataFile, data, n, medium, transform);
 	if (SpecFile)
-		Dump_Sub(SpecFile, spec, n / 2 + 1, transformspec);
+		Dump_Sub(SpecFile, spec, n / 2 + 1, medium, transformspec);
 }
 
-void field::DumpFullPrecision(char *name, double(*transform)(int), double(*transformspec)(int))
+/*
+void field::DumpFullPrecision(char *name, Medium* medium, double(Medium::*transform)(int), double(Medium::*transformspec)(int))
 {
 	char fn[256];
 	sprintf(fn, "%s-spec", name);
 
 	FILE *f = GetFile(name), *fs = GetFile(fn);
-	DumpFullPrecision(f, fs, transform, transformspec);
+	DumpFullPrecision(f, fs, medium, transform, transformspec);
 	fclose(f);
 	fclose(fs);
 }
+//*/
 
-void field::DumpFullPrecision(FILE *DataFile, FILE *SpecFile, double(*transform)(int), double(*transformspec)(int))
+void field::DumpFullPrecision(FILE *DataFile, FILE *SpecFile, Medium* medium, double(Medium::*transform)(int), double(Medium::*transformspec)(int))
 {
 	if (DataFile)
 	{
 		for (int i = 0; i < n; ++i)
-			fprintf(DataFile, "%e %.15e\n", transform(i), data[i]);
+			fprintf(DataFile, "%e %.15e\n", (medium->*transform)(i), data[i]);
 		fprintf(DataFile, "\n\n");
 	}
 
 	if (SpecFile)
 	{
 		for (int i = 0; i <= n / 2; ++i)
-			fprintf(SpecFile, "%.10e %.15e\n", transformspec(i), spec[i]);
+			fprintf(SpecFile, "%.10e %.15e\n", (medium->*transformspec)(i), spec[i]);
 		fprintf(SpecFile, "\n\n");
 	}
 }
 
-void field::Dump_Sub(FILE *file, double *data, int n, double(*transform)(int))
+void field::Dump_Sub(FILE *file, double *data, int n, Medium* medium, double(Medium::*transform)(int))
 {
 	FILE *fe = file;
 
 	int i;
-	fprintf(fe, DumpPattern, realxe(0), data[0]);
+	fprintf(fe, DumpPattern, (medium->*transform)(0), data[0]);
 	// Пропускаем ведущие нули
 	for (i = 1; i < n; i++)
 	{
 		if (abs(data[i]) > eps) break;
 	}
-	if (i>1) fprintf(fe, DumpPattern, realxe(i - 1), 0.0);
+	if (i>1) fprintf(fe, DumpPattern, (medium->*transform)(i - 1), 0.0);
 	for (; i < n; i++)
 	{
-		fprintf(fe, DumpPattern, realxe(i), data[i]);
+		fprintf(fe, DumpPattern, (medium->*transform)(i), data[i]);
 
 		// Если вдруг встретили ноль. Группу последовательных нулей заменяем на две точки по концам отрезка.
 		if (abs(data[i]) <= eps)
@@ -125,12 +129,12 @@ void field::Dump_Sub(FILE *file, double *data, int n, double(*transform)(int))
 			}
 			else
 			{
-				if (j - 1 > i) fprintf(fe, DumpPattern, realxe(j - 1), 0.0);
+				if (j - 1 > i) fprintf(fe, DumpPattern, (medium->*transform)(j - 1), 0.0);
 				i = j - 1;
 			}
 		}
 	}
-	fprintf(fe, DumpPattern, realxe(n - 1), data[n - 1]);
+	fprintf(fe, DumpPattern, (medium->*transform)(n - 1), data[n - 1]);
 	fprintf(fe, "\n\n");
 
 	fclose(fe);

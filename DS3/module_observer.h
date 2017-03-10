@@ -1,4 +1,9 @@
-#include "global.h"
+#pragma once
+#include "module.h"
+#include "field.h"
+#include <vector>
+
+using namespace std;
 
 struct RecHead
 {
@@ -35,10 +40,12 @@ class ObsModule : public Module
 	vector<RecHead*> RecHeads;
 	vector<string> RecHeadNames;
 public:
+	explicit ObsModule(Experiment* e = nullptr) : Module(e) {}
 	~ObsModule();
 	virtual void Init() override;
 	virtual void Tick(int time) override;
 	virtual void PostCalc(int time) override;
+	virtual void Collect(vector<Module*> modules) override;
 	virtual void Average() override;
 
 	void AddObserver(int x, const char* name);

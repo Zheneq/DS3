@@ -1,7 +1,17 @@
 #pragma once
-#include "global.h"
+#include "../Inih/cpp/INIREADER.h"
 #define _USE_MATH_DEFINES
 #include <math.h>
+#include <vector>
+#include <random>
+
+extern std::default_random_engine *gen;
+class field;
+
+struct Layer
+{
+	double left, right, dc;
+};
 
 struct Parameter
 {
@@ -112,6 +122,8 @@ public:
 	int LayerCount; // „исло подслоЄв
 	double LayerWidth[2]; // Ўирины подслоЄв (чередуютс€)
 	double LayerWidthMaxDivergenceRel;
+
+	int DumpFrameStep;
 
 
 	field *e, *h;

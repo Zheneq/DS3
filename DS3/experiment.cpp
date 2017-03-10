@@ -7,7 +7,7 @@ void Experiment::Log(const char *msg, bool bToConsole)
 	if (!logFile) throw("No log file!");
 
 	fprintf(logFile, "%s\n", msg);
-	printf("\n\tLog:\t%s\n", msg);
+	printf("\n\tLog: [%02d]\t%s\n", id, msg);
 }
 
 void Experiment::Load(const char *baseinifile, const char *overrideinifile)
@@ -35,13 +35,11 @@ void Experiment::Load(const char *baseinifile, const char *overrideinifile)
 	_mkdir(path);
 
 	char Folder[512];
-	for (int i = 0; i <= expCount; ++i)
-	{
-		sprintf(Folder, "%s/E%03d", path, i);
-		_mkdir(Folder);
-	}
 	sprintf(Folder, "%s/Average", path);
 	_mkdir(Folder);
+
+	sprintf(path, "%s/E%03d", path, id);
+	_mkdir(path);
 
 	// Init logger
 	char *fn = new char[256];
@@ -50,11 +48,10 @@ void Experiment::Load(const char *baseinifile, const char *overrideinifile)
 	delete[] fn;
 
 	// Модули
-	observer = new ObsModule;
+	observer = new ObsModule(this);
 
-	modules.push_back(new MainModule);
-	modules.push_back(new InvModule);
-	modules.push_back(new SSModule);
+	modules.push_back(new MainModule(this));
+	modules.push_back(new InvModule(this));
 	modules.push_back(observer);
 }
 
@@ -98,7 +95,7 @@ void Experiment::Run()
 		}
 
 		FILE *f = GetFile("DielCond");
-		dp->DumpFullPrecision(f, NULL);
+		dp->DumpFullPrecision(f, NULL, medium);
 		fclose(f);
 
 
@@ -110,7 +107,7 @@ void Experiment::Run()
 		}
 
 		f = GetFile("Absorption");
-		ab->DumpFullPrecision(f, NULL);
+		ab->DumpFullPrecision(f, NULL, medium);
 		fclose(f);
 
 		///////////////////////////////
@@ -119,7 +116,7 @@ void Experiment::Run()
 		int time;
 		for (time = 1; time < medium->nt; ++time)
 		{
-			printf("\r%02d of %d: %d/%d          ", ExperimentNum, ExperimentCount, time, medium->nt - 1);
+			printf("\r%02d of ??: %d/%d          ", id, time, medium->nt - 1);
 
 			for (auto m : modules)
 				m->Tick(time);
@@ -138,14 +135,12 @@ void Experiment::Run()
 	UnLoad();
 }
 
-FILE *GetFile(const char *name)
+FILE *Experiment::GetFile(const char *name)
 {
 	char DumpPath[512];
-	if (expNum < expCount)
-		sprintf(DumpPath, "%s/E%03d/%s.txt", config->Get("Data", "DumpPath", "").c_str(), expNum, name);
-	else
-		sprintf(DumpPath, "%s/Average/%s.txt", config->Get("Data", "DumpPath", "").c_str(), name);
-	FILE *f = fopen(DumpPath, "wt");
+	sprintf_s(DumpPath, "%s/E%03d/%s.txt", path, id, name);
+	FILE *f = nullptr;
+	fopen_s(&f, DumpPath, "wt");
 
 	if (!f)
 	{

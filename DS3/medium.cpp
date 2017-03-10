@@ -1,4 +1,6 @@
 #include "medium.h"
+#include "field.h"
+#include <random>
 
 Medium::Medium()
 {
@@ -28,6 +30,7 @@ Medium::Medium()
 	IntParams.emplace_back("AbsorbLayer", -1);
 	// ...
 
+	IntParams.emplace_back("FrameStep", 1000000000);
 }
 
 void Medium::Load(INIReader *config)
@@ -61,6 +64,8 @@ void Medium::Init()
 	// AbsorbCenter = GetReal("AbsorbCenter");
 	int AbsorbLayer = GetInt("AbsorbLayer");
 
+	DumpFrameStep = GetInt("FrameStep");
+
 	// Generation
 	lz0 = lz / 2;
 	ts = hs;
@@ -71,8 +76,8 @@ void Medium::Init()
 
 
 	// Генерирование слоя
-	uniform_real_distribution<double> LayerWidthDistribution = std::uniform_real_distribution<double>(1.0 - LayerWidthMaxDivergenceRel, 1.0 + LayerWidthMaxDivergenceRel);
-	uniform_real_distribution<double> DPDistribution = std::uniform_real_distribution<double>(1.0 - DPMaxDivergenceRel, 1.0 + DPMaxDivergenceRel);
+	std::uniform_real_distribution<double> LayerWidthDistribution = std::uniform_real_distribution<double>(1.0 - LayerWidthMaxDivergenceRel, 1.0 + LayerWidthMaxDivergenceRel);
+	std::uniform_real_distribution<double> DPDistribution = std::uniform_real_distribution<double>(1.0 - DPMaxDivergenceRel, 1.0 + DPMaxDivergenceRel);
 	Layers = new Layer[LayerCount];
 	int i;
 
