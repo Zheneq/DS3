@@ -28,7 +28,7 @@ void InvModule::Tick(int time)
 		inv2 += pow(m->e->data[j], 2) * dcj + pow(m->h->data[j], 2);
 		if (time) inv3 += pow(m->e->data[j], 2) * dcj + pow(0.5 * (m->h->data[j] + h_cache[j]), 2); // if time==0 we can't average two last steps
 
-		h_cache[j] = m->h->data[j];
+		// h_cache[j] = m->h->data[j];
 	}
 
 	inv[0][time] = inv0;
@@ -36,7 +36,7 @@ void InvModule::Tick(int time)
 	inv[2][time] = inv2;
 	inv[3][time] = inv3;
 
-	// memcpy(h_cache, m->h->data, m->nz);
+	memcpy(h_cache, m->h->data, m->nz * sizeof(*m->h->data));
 }
 
 
