@@ -4,9 +4,11 @@
 #include <math.h>
 #include <vector>
 #include <random>
+#include "configurer.h"
 
 extern std::default_random_engine *gen;
 class field;
+class Experiment;
 
 struct Layer
 {
@@ -59,11 +61,14 @@ class Medium
 {
 	std::vector<IntParameter> IntParams;
 	std::vector<RealParameter> RealParams;
+	Experiment *experiment;
+
+	void Log(const char* msg);
 
 	int GetInt(const char *name)
 	{
 		for (auto p : IntParams)
-			if (strcmp(name, p.name))
+			if (!strcmp(name, p.name))
 				return p.value;
 
 		throw "Undeclared parameter.";
@@ -73,7 +78,7 @@ class Medium
 	double GetReal(const char *name)
 	{
 		for (auto p : RealParams)
-			if (strcmp(name, p.name))
+			if (!strcmp(name, p.name))
 				return p.value;
 
 		throw "Undeclared parameter.";
@@ -81,23 +86,24 @@ class Medium
 	}
 
 public:
-	Medium();
-	void Load(INIReader *config);
+	Medium(Experiment* const experiment);
+	~Medium();
+	void Load(const Configurer &config);
 	void Init();
 
 
-	double realxe(int i) { return i*hs - lz0; }
-	double realxh(int i) { return realxe(i) + hs * .5; }
-	double realte(int i) { return i*ts; }
-	double realth(int i) { return realte(i) + ts * .5; }
-	double realspec(int i) { return 2 * M_PI * i / lz; }
-	double realspect(int i) { return 2 * M_PI * i / lt; }
-	int idxxe(double x) { return (int)(round((x + lz0) / hs)); }
+	double realxe(int i) const { return i*hs - lz0; }
+	double realxh(int i) const { return realxe(i) + hs * .5; }
+	double realte(int i) const { return i*ts; }
+	double realth(int i) const { return realte(i) + ts * .5; }
+	double realspec(int i) const { return 2 * M_PI * i / lz; }
+	double realspect(int i) const { return 2 * M_PI * i / lt; }
+	int idxxe(double x) const { return (int)(round((x + lz0) / hs)); }
 
-	double DielCond(int x);
-	double Absorption(int x);
-	double Energy(int x);
-	double ElecEnergy(int x);
+	double DielCond(int x) const;
+	double Absorption(int x) const;
+	double Energy(int x) const;
+	double ElecEnergy(int x) const;
 
 
 	double lz;  // Длина среды

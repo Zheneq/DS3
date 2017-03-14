@@ -71,5 +71,8 @@
     <ClInclude Include="medium.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="configurer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

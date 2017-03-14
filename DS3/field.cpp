@@ -56,7 +56,7 @@ void field::Dump(char *name, Medium* medium, double(Medium::*transform)(int), do
 }
 //*/
 
-void field::Dump(FILE *DataFile, FILE *SpecFile, Medium* medium, double(Medium::*transform)(int), double(Medium::*transformspec)(int))
+void field::Dump(FILE *DataFile, FILE *SpecFile, Medium* medium, double(Medium::*transform)(int) const, double(Medium::*transformspec)(int) const)
 {
 	if (DataFile)
 		Dump_Sub(DataFile, data, n, medium, transform);
@@ -77,12 +77,12 @@ void field::DumpFullPrecision(char *name, Medium* medium, double(Medium::*transf
 }
 //*/
 
-void field::DumpFullPrecision(FILE *DataFile, FILE *SpecFile, Medium* medium, double(Medium::*transform)(int), double(Medium::*transformspec)(int))
+void field::DumpFullPrecision(FILE *DataFile, FILE *SpecFile, Medium* medium, double(Medium::*transform)(int) const, double(Medium::*transformspec)(int) const)
 {
 	if (DataFile)
 	{
 		for (int i = 0; i < n; ++i)
-			fprintf(DataFile, "%e %.15e\n", (medium->*transform)(i), data[i]);
+			fprintf(DataFile, "%.10e %.15e\n", (medium->*transform)(i), data[i]);
 		fprintf(DataFile, "\n\n");
 	}
 
@@ -94,7 +94,7 @@ void field::DumpFullPrecision(FILE *DataFile, FILE *SpecFile, Medium* medium, do
 	}
 }
 
-void field::Dump_Sub(FILE *file, double *data, int n, Medium* medium, double(Medium::*transform)(int))
+void field::Dump_Sub(FILE *file, double *data, int n, Medium* medium, double(Medium::*transform)(int) const)
 {
 	FILE *fe = file;
 

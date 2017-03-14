@@ -15,16 +15,16 @@ private:
 	FILE *logFile;
 	ObsModule *observer;
 
-	char path[512];
+	char path[512], path_avg[512];
+	bool bHasFinished;
 	int id;
 
 public:
-	Experiment(int _id = -1) : medium(nullptr), observer(nullptr), id(_id) {}
-	~Experiment() { UnLoad(); }
+	Experiment(int _id = -1) : medium(nullptr), observer(nullptr), logFile(nullptr), id(_id), bHasFinished(false) {}
+	~Experiment();
 	Experiment(const Experiment&) = delete;
 	void Log(const char *msg, bool bToConsole = false);
 	void Load(const char *baseinifile, const char *overrideinifile = nullptr);
-	void UnLoad();
 	void Run();
 	FILE *GetFile(const char *name);
 };

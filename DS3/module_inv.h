@@ -6,7 +6,8 @@ class InvModule : public Module
 {
 private:
 
-	double *inv[3];
+	double *inv[4];
+	double *h_cache;
 
 public:
 	explicit InvModule(Experiment* e = nullptr) : Module(e) {}

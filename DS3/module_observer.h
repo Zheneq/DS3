@@ -45,8 +45,7 @@ public:
 	virtual void Init() override;
 	virtual void Tick(int time) override;
 	virtual void PostCalc(int time) override;
-	virtual void Collect(vector<Module*> modules) override;
-	virtual void Average() override;
+	virtual void Average(vector<Module*> modules) override;
 
 	void AddObserver(int x, const char* name);
 };

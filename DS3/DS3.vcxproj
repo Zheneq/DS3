@@ -89,6 +89,7 @@
     <ClCompile Include="module_observer.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="configurer.h" />
     <ClInclude Include="experiment.h" />
     <ClInclude Include="field.h" />
     <ClInclude Include="global.h" />

@@ -43,7 +43,7 @@ void ObsModule::PostCalc(int time)
 	FILE *f = experiment->GetFile("records");
 	for (auto& RC : RecHeads)
 	{
-		RC->Records.push_back(RC->data);
+		// RC->Records.push_back(RC->data);
 
 		for (int i = 0; i < RC->get_len(); ++i)
 		{
@@ -51,41 +51,45 @@ void ObsModule::PostCalc(int time)
 		}
 		fprintf(f, "\n\n");
 
-		RC->data = NULL;
+		// RC->data = NULL;
 	}
 	fclose(f);
 }
 
-void ObsModule::Average()
+void ObsModule::Average(vector<Module*> modules)
 {
-	int idx = 0;
 	char fn[64];
-	for (auto& RC : RecHeads)
-	{
-		RC->Init();
 
-		for (int i = 0; i < RC->get_len(); ++i)
+	field *avrg = new field();
+	avrg->Init(experiment->medium->nt);
+
+	for (unsigned int i = 0; i < RecHeads.size(); ++i) // Observers
+	{
+		for (int j = 0; j < experiment->medium->nt; ++j) // Time slices
 		{
 			double sum = 0;
-			for (auto rec : RC->Records)
+			for (unsigned int k = 0; k < modules.size(); ++k) // Realizations
 			{
-				sum += rec->data[i];
+				sum += ((ObsModule*)modules[k])->RecHeads[i]->data->data[j];
 			}
-			RC->data->data[i] = sum / RC->Records.size();
+			avrg->data[j] = sum / modules.size();
 		}
 
-		RC->data->Fourier();
+		avrg->Fourier();
 
-		sprintf_s(fn, "rec%03d", idx);
+		sprintf_s(fn, "rec%03d", i);
 		FILE *f = experiment->GetFile(fn);
-		sprintf_s(fn, "rec%03d-spec", idx);
+		sprintf_s(fn, "rec%03d-spec", i);
 		FILE *fs = experiment->GetFile(fn);
 
-		RC->data->DumpFullPrecision(f, fs, experiment->medium, &Medium::realte, &Medium::realspect);
+		avrg->DumpFullPrecision(f, fs, experiment->medium, &Medium::realte, &Medium::realspect);
+
+		for (const auto &m : modules)
+		{
+			((ObsModule*)m)->RecHeads[i]->data->DumpFullPrecision(f, fs, experiment->medium, &Medium::realte, &Medium::realspect);
+		}
 
 		fclose(f);
 		fclose(fs);
-
-		idx++;
 	}
 }

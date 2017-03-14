@@ -1,8 +1,9 @@
 #include "medium.h"
 #include "field.h"
+#include "experiment.h"
 #include <random>
 
-Medium::Medium()
+Medium::Medium(Experiment* const _experiment) : Layers(nullptr), e(nullptr), h(nullptr), experiment(_experiment)
 {
 	// ќбъ€вление параметров
 	RealParams.emplace_back("Length", 0.0);
@@ -18,25 +19,43 @@ Medium::Medium()
 
 	IntParams.emplace_back("LayerCount", 0);
 
-	RealParams.emplace_back("AbsorbHalfWidth", 0.0);
-
 	RealParams.emplace_back("Left", 0.0);
 	RealParams.emplace_back("LayerWidth1", 0.0);
 	RealParams.emplace_back("LayerWidth2", 0.0);
-	IntParams.emplace_back("LayerCount", 0);
 	RealParams.emplace_back("LayerWidthMaxDivergenceRel", 0.1);
+
+	IntParams.emplace_back("AbsorbLayer", -1);
+	RealParams.emplace_back("AbsorbHalfWidth", 0.0);
 	RealParams.emplace_back("AbsorbCoef", 1.0);
 	// RealParams.emplace_back("AbsorbCenter", 0.0);
-	IntParams.emplace_back("AbsorbLayer", -1);
 	// ...
 
 	IntParams.emplace_back("FrameStep", 1000000000);
 }
 
-void Medium::Load(INIReader *config)
+Medium::~Medium()
 {
-	for (auto p : IntParams) p.Read(config);
-	for (auto p : RealParams) p.Read(config);
+	if (Layers) delete[] Layers;
+	if (e) delete e;
+	if (h) delete h;
+}
+
+void Medium::Log(const char* msg)
+{
+	if (experiment) experiment->Log(msg);
+}
+
+// TODO: ѕеределать эту фунцию по-нормальному
+void Medium::Load(const Configurer &config)
+{
+	for (auto &p : IntParams) p.Read(config.base);
+	for (auto &p : RealParams) p.Read(config.base);
+
+	if (config.over)
+	{
+		for (auto &p : IntParams) p.Read(config.over);
+		for (auto &p : RealParams) p.Read(config.over);
+	}
 }
 
 void Medium::Init()
@@ -107,7 +126,7 @@ void Medium::Init()
 
 	if (AbsorbLayer >= 0)
 	{
-		double add = LayerWidth[0] - (Layers[AbsorbLayer].right - Layers[AbsorbLayer].left);
+		double add = LayerWidth[AbsorbLayer % 2] - (Layers[AbsorbLayer].right - Layers[AbsorbLayer].left);
 
 		for (int i = AbsorbLayer; i < LayerCount; ++i)
 		{
@@ -118,17 +137,14 @@ void Medium::Init()
 		AbsorbCenter = .5 * (Layers[AbsorbLayer].right + Layers[AbsorbLayer].left);
 	}
 
-	printf("Layers: \n");
+	char msg[256];
+	Log("Layers:");
 	for (int i = 0; i < LayerCount; ++i)
 	{
-		printf("\t%.2f ", Layers[i].right - Layers[i].left);
+		sprintf_s(msg, "\t wid = %.2f \t dc = %.2f", Layers[i].right - Layers[i].left, Layers[i].dc);
+		Log(msg);
 	}
-	printf("\n");
-	for (int i = 0; i < LayerCount; ++i)
-	{
-		printf("\t%.2f ", Layers[i].dc);
-	}
-	printf("\n");
+	Log("\n");
 
 	// »нициализаци€ классов пол€
 	h = new field();
@@ -137,7 +153,7 @@ void Medium::Init()
 	e->Init(nz, FFTW_ESTIMATE);
 }
 
- double Medium::DielCond(int x/*, int t*/)
+ double Medium::DielCond(int x/*, int t*/) const
 {
 	register double rx = realxe(x);
 
@@ -157,7 +173,7 @@ void Medium::Init()
 	return 1;
 }
 
-double Medium::Absorption(int x)
+double Medium::Absorption(int x) const
 {
 	// gauss
 	double rx = realxe(x);
@@ -177,12 +193,12 @@ double Medium::Absorption(int x)
 	//*/
 }
 
-double Medium::Energy(int x)
+double Medium::Energy(int x) const
 {
 	return .5 * (DielCond(x) * e->data[x] * e->data[x] + h->data[x] * h->data[x]);
 }
 
-double Medium::ElecEnergy(int x)
+double Medium::ElecEnergy(int x) const
 {
 	return .5 * DielCond(x) * e->data[x] * e->data[x];
 }

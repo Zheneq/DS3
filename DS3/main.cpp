@@ -8,11 +8,13 @@
 #include <ctime>
 #include "global.h"
 #include "experiment.h"
+#include "configurer.h"
 
 using namespace std;
 default_random_engine *gen = NULL;
 double eps = 1e-12; // Точность
-char DumpPattern[64] = "%.12 %.12";
+char DumpPattern[64] = "%.12e %.12e\n";
+
 
 class RandomExperiment
 {
@@ -40,13 +42,10 @@ public:
 
 	void Run()
 	{
-		INIReader baseconfig(baseinifile), overconfig(overrideinifile);
-		if (baseconfig.ParseError() < 0 || overconfig.ParseError() < 0) {
-			throw("Can't load ini file");
-		}
+		Configurer config(baseinifile, overrideinifile);
 
 		// Output folders
-		strcpy_s(folder, overrideinifile);
+		strcpy_s(folder, overrideinifile ? overrideinifile : baseinifile);
 		for (int i = strlen(folder); i; --i) {
 			if (folder[i] == '.')
 			{
@@ -69,8 +68,7 @@ public:
 		// sprintf(DumpPattern, DumpPatternPattern, dig, dig);
 
 
-		int expCount = baseconfig.GetInteger("Data", "ExperimentCount", -1);
-		expCount = overconfig.GetInteger("Data", "ExperimentCount", expCount);
+		int expCount = config.GetInteger("ExperimentCount", -1);
 
 		vector<Experiment*> exps;
 
@@ -97,20 +95,11 @@ public:
 				modules.push_back(e->modules[i]);
 			}
 
-			exps[0]->modules[i]->Collect(modules);
+			exps[0]->modules[i]->Average(modules);
 		}
 
 		for (const auto e : exps)
 		{
-			for (const auto m : e->modules)
-			{
-				m->Average();
-			}
-		}
-
-		for (const auto e : exps)
-		{
-			e->UnLoad();
 			delete e;
 		}
 		exps.clear();

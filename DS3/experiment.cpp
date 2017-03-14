@@ -1,6 +1,7 @@
 #include "experiment.h"
 #include <ctime>
 #include <iostream>
+#include "configurer.h"
 
 void Experiment::Log(const char *msg, bool bToConsole)
 {
@@ -12,15 +13,10 @@ void Experiment::Log(const char *msg, bool bToConsole)
 
 void Experiment::Load(const char *baseinifile, const char *overrideinifile)
 {
-	INIReader baseconfig(baseinifile), overconfig(overrideinifile);
+	Configurer config(baseinifile, overrideinifile);
 
-	if (baseconfig.ParseError() < 0 || overrideinifile && overconfig.ParseError() < 0) {
-		throw("Can't load ini file");
-	}
-
-	medium = new Medium();
-	medium->Load(&baseconfig);
-	medium->Load(&overconfig);
+	medium = new Medium(this);
+	medium->Load(config);
 
 	// Output folders
 	strcpy_s(path, overrideinifile ? overrideinifile : baseinifile);
@@ -34,9 +30,8 @@ void Experiment::Load(const char *baseinifile, const char *overrideinifile)
 
 	_mkdir(path);
 
-	char Folder[512];
-	sprintf(Folder, "%s/Average", path);
-	_mkdir(Folder);
+	sprintf(path_avg, "%s/Average", path);
+	_mkdir(path_avg);
 
 	sprintf(path, "%s/E%03d", path, id);
 	_mkdir(path);
@@ -55,9 +50,9 @@ void Experiment::Load(const char *baseinifile, const char *overrideinifile)
 	modules.push_back(observer);
 }
 
-void Experiment::UnLoad()
+Experiment::~Experiment()
 {
-	fclose(logFile);
+	if (logFile) fclose(logFile);
 
 	if (medium) delete medium;
 	for (auto m : modules) delete m;
@@ -87,28 +82,34 @@ void Experiment::Run()
 		}
 		Log("Structure end");
 
-		field* dp = new field;
-		dp->Init(medium->nz, FFTW_ESTIMATE);
-		for (int i = 0; i < dp->GetLen(); ++i)
 		{
-			dp->data[i] = medium->DielCond(i);
+			field* dp = new field;
+			dp->Init(medium->nz, FFTW_ESTIMATE);
+			for (int i = 0; i < dp->GetLen(); ++i)
+			{
+				dp->data[i] = medium->DielCond(i);
+			}
+
+			FILE *f = GetFile("DielCond");
+			dp->DumpFullPrecision(f, NULL, medium);
+			fclose(f);
+			delete dp;
+
 		}
 
-		FILE *f = GetFile("DielCond");
-		dp->DumpFullPrecision(f, NULL, medium);
-		fclose(f);
-
-
-		field* ab = new field;
-		ab->Init(medium->nz, FFTW_ESTIMATE);
-		for (int i = 0; i < ab->GetLen(); ++i)
 		{
-			ab->data[i] = medium->Absorption(i);
-		}
+			field* ab = new field;
+			ab->Init(medium->nz, FFTW_ESTIMATE);
+			for (int i = 0; i < ab->GetLen(); ++i)
+			{
+				ab->data[i] = medium->Absorption(i);
+			}
 
-		f = GetFile("Absorption");
-		ab->DumpFullPrecision(f, NULL, medium);
-		fclose(f);
+			FILE *f = GetFile("Absorption");
+			ab->DumpFullPrecision(f, NULL, medium);
+			fclose(f);
+			delete ab;
+		}
 
 		///////////////////////////////
 
@@ -125,20 +126,20 @@ void Experiment::Run()
 
 		for (auto m : modules)
 			m->PostCalc(time);
+
+		bHasFinished = true;
 	}
 	catch (char *error)
 	{
 		cerr << error << endl;
-		UnLoad();
 		return;
 	}
-	UnLoad();
 }
 
 FILE *Experiment::GetFile(const char *name)
 {
 	char DumpPath[512];
-	sprintf_s(DumpPath, "%s/E%03d/%s.txt", path, id, name);
+	sprintf_s(DumpPath, "%s/%s.txt", bHasFinished ? path_avg : path, name);
 	FILE *f = nullptr;
 	fopen_s(&f, DumpPath, "wt");
 
