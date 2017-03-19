@@ -11,9 +11,9 @@ class Experiment
 public:
 	Medium *medium;
 	std::vector<Module*> modules;
+	ObsModule *observer;
 private:
 	FILE *logFile;
-	ObsModule *observer;
 
 	char path[512], path_avg[512];
 	bool bHasFinished;

@@ -9,12 +9,22 @@ class field
 private:
 	int n;
 	fftw_complex *sp;
-	fftw_plan forward, backward;
+	fftw_plan *forward, *backward;
+	unsigned int flags;
 	void Dump_Sub(FILE *file, double *data, int n, Medium* medium, double(Medium::*transform)(int) const);
 public:
+
+	field(int _n, unsigned int _flags = FFTW_MEASURE) : data(nullptr), forward(nullptr), backward(nullptr), flags(_flags)
+	{
+		n = _n;
+
+		data = (double*)malloc(sizeof(double)*n);
+		sp = fftw_alloc_complex(n / 2 + 1);
+		spec = (double*)malloc(sizeof(double)*(n / 2 + 1));
+	}
+
 	double *data;
 	double *spec;
-	void Init(int _n, unsigned int flags = FFTW_MEASURE);	// Fourier(CP_INIT);
 	void Fourier(bool back = false);
 	void Free();
 	int GetLen() { return n; }

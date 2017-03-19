@@ -8,27 +8,21 @@ using namespace std;
 struct RecHead
 {
 	int idx, len;
-	field *data;
-	vector<field*> Records;
+	field *e, *h;
 
-	RecHead(int _idx, int _len)
-	{
-		idx = _idx;
-		len = _len;
-		data = NULL;
-	}
+	RecHead(int _idx, int _len) : idx(_idx), len(_len), e(nullptr), h(nullptr) {}
+
 	void Init()
 	{
-		data = new field();
-		data->Init(len);
+		e = new field();
+		h = new field();
+		e->Init(len);
+		h->Init(len);
 	}
 	~RecHead()
 	{
-		if (data) delete data;
-		for (auto RS : Records)
-		{
-			if(RS) delete RS;
-		}
+		if (e) delete e;
+		if (h) delete h;
 	}
 	RecHead(const RecHead&) = delete;
 	int get_len() { return len; }
@@ -40,6 +34,7 @@ class ObsModule : public Module
 	vector<RecHead*> RecHeads;
 	vector<string> RecHeadNames;
 public:
+	ObsModule(const ObsModule&) = delete;
 	explicit ObsModule(Experiment* e = nullptr) : Module(e) {}
 	~ObsModule();
 	virtual void Init() override;
@@ -48,4 +43,5 @@ public:
 	virtual void Average(vector<Module*> modules) override;
 
 	void AddObserver(int x, const char* name);
+	const RecHead& GetObserver(const char *name);
 };

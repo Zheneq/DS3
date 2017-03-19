@@ -62,7 +62,7 @@ void Medium::Init()
 {
 
 	// Values 
-	lz = GetReal("Length");
+	// lz = GetReal("Length");
 	lt = GetReal("Time");
 	hs = GetReal("Step");
 	cf = GetReal("CarrFreq");
@@ -86,10 +86,16 @@ void Medium::Init()
 	DumpFrameStep = GetInt("FrameStep");
 
 	// Generation
-	lz0 = lz / 2;
+	double requiredLength = GetReal("ImpWidth") * 5 + StructureLeftEdge + max(LayerWidth[0], LayerWidth[1]) * (LayerWidthMaxDivergenceRel + 1) * LayerCount;
+	int requiredPoints = (int)ceil(requiredLength / hs);
+
+	nz = (int)pow(2, (int)log2(requiredPoints) + 1);
+	lz = nz * hs;
+
+
+	lz0 = (lz - requiredLength) * .5 + GetReal("ImpWidth") * 5;
 	ts = hs;
 
-	nz = (int)(lz / hs);
 	nt = (int)(lt / ts) + 1;
 
 

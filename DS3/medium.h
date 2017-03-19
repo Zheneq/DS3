@@ -86,6 +86,7 @@ class Medium
 	}
 
 public:
+	Medium(const Medium&) = delete;
 	Medium(Experiment* const experiment);
 	~Medium();
 	void Load(const Configurer &config);

@@ -46,8 +46,8 @@ void Experiment::Load(const char *baseinifile, const char *overrideinifile)
 	observer = new ObsModule(this);
 
 	modules.push_back(new MainModule(this));
-	modules.push_back(new InvModule(this));
 	modules.push_back(observer);
+	modules.push_back(new InvModule(this));
 }
 
 Experiment::~Experiment()
@@ -64,9 +64,6 @@ void Experiment::Run()
 	try
 	{
 		medium->Init();
-
-		observer->AddObserver(medium->idxxe(-50), "refl");
-		observer->AddObserver(medium->idxxe(145), "trans");
 
 		for (auto m : modules)
 			m->Init();

@@ -63,29 +63,4 @@ void MainModule::PostCalc(int time)
 	info->e->DumpFullPrecision(f, fs, info);
 	fclose(f);
 	fclose(fs);
-
-	// Impulse bounds
-	int l, r;
-	for (int i = 0; i < info->e->GetLen(); ++i)
-	{
-		if (abs(info->e->data[i]) > 1e-8)
-		{
-			l = i;
-			break;
-		}
-
-	}
-	for (int i = info->e->GetLen() - 1; i >= 0 ; --i)
-	{
-		if (abs(info->e->data[i]) > 1e-8)
-		{
-			r = i;
-			break;
-		}
-
-	}
-
-	char msg[256];
-	sprintf_s(msg, "%lf - %lf", info->realxe(l), info->realxe(r));
-	experiment->Log(msg);
 }

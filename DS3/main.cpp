@@ -6,6 +6,7 @@
 #include <direct.h>
 #include <string>
 #include <ctime>
+#include <thread>
 #include "global.h"
 #include "experiment.h"
 #include "configurer.h"
@@ -78,12 +79,18 @@ public:
 			exps.back()->Load(baseinifile, overrideinifile != baseinifile ? overrideinifile : nullptr);
 		}
 		
-		/// TODO Распарралелить
-		for (const auto e : exps)
+		vector<thread*> threads;
+		/// ~TODO Распарралелить
+		for (unsigned int i = 0; i < exps.size(); ++i)
 		{
-			e->Run();
+			threads.push_back(new thread(RunExperiment, exps[i]));
 		}
-		/// TODO Синхронизировать
+		/// ~TODO Синхронизировать
+		for (auto& t: threads)
+		{
+			t->join();
+			delete t;
+		}
 
 		vector<Module*> modules;
 		for (unsigned int i = 0; i < exps[0]->modules.size(); i++)
@@ -120,6 +127,11 @@ public:
 		}
 
 		return f;
+	}
+
+	static void RunExperiment(Experiment* experiment)
+	{
+		experiment->Run();
 	}
 };
 

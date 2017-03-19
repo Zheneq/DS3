@@ -7,6 +7,8 @@ public:
 	INIReader *base, *over;
 
 public:
+	Configurer(const Configurer&) = delete;
+
 	Configurer(const char *baseinifile, const char *overrideinifile) : base(nullptr), over(nullptr)
 	{
 		if (!baseinifile) throw "Configurer: No INI file.";

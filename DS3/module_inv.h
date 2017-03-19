@@ -6,7 +6,8 @@ class InvModule : public Module
 {
 private:
 
-	double *inv[4];
+	double *inv[5];
+	FILE *f[5];
 	double *h_cache;
 
 public:
