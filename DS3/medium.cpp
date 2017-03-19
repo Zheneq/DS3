@@ -153,10 +153,8 @@ void Medium::Init()
 	Log("\n");
 
 	// Инициализация классов поля
-	h = new field();
-	h->Init(nz, FFTW_ESTIMATE);
-	e = new field();
-	e->Init(nz, FFTW_ESTIMATE);
+	h = new field(nz, FFTW_ESTIMATE);
+	e = new field(nz, FFTW_ESTIMATE);
 }
 
  double Medium::DielCond(int x/*, int t*/) const

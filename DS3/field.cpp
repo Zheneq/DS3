@@ -1,15 +1,24 @@
 #include "field.h"
 
+// Forward declaration
+fftw_plan& GetPlan(int n);
+
 void field::Fourier(bool back)
 {
-	if (forward) forward = new fftw_plan(fftw_plan_dft_r2c_1d(n, data, sp, flags));
-	if (backward) backward = new fftw_plan(fftw_plan_dft_c2r_1d(n, sp, data, flags));
-	
-
 	// TODO: Обратное Фурье не из того массива
 	if (back)
 	{
-		fftw_execute(*backward);
+		throw "Backwards FT is not implemented.";
+
+		/*
+		/// Outdated
+		if (!bBackward)
+		{
+			backward = fftw_plan_dft_c2r_1d(n, sp, data, flags);
+			bBackward = true;
+		}
+
+		fftw_execute(backward);
 
 		////
 		for (int i = 0; i < n; i++)
@@ -17,10 +26,11 @@ void field::Fourier(bool back)
 			data[i] /= n;
 		}
 		////
+		//*/
 	}
 	else
 	{
-		fftw_execute(*forward);
+		fftw_execute_dft_r2c(GetPlan(n), data, sp);
 
 		for (int i = 0; i < n / 2 + 1; i++)
 		{
@@ -29,21 +39,11 @@ void field::Fourier(bool back)
 	}
 }
 
-void field::Free()
+field::~field()
 {
-	if (forward)
-	{
-		fftw_destroy_plan(*forward);
-		delete forward;
-	}
-	if (backward)
-	{
-		fftw_destroy_plan(*backward);
-		delete backward;
-	}
 	fftw_free(sp);
-	free(spec);
-	free(data);
+	fftw_free(spec);
+	fftw_free(data);
 }
 
 /*

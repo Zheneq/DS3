@@ -80,8 +80,7 @@ void Experiment::Run()
 		Log("Structure end");
 
 		{
-			field* dp = new field;
-			dp->Init(medium->nz, FFTW_ESTIMATE);
+			field* dp = new field(medium->nz, FFTW_ESTIMATE);
 			for (int i = 0; i < dp->GetLen(); ++i)
 			{
 				dp->data[i] = medium->DielCond(i);
@@ -95,8 +94,7 @@ void Experiment::Run()
 		}
 
 		{
-			field* ab = new field;
-			ab->Init(medium->nz, FFTW_ESTIMATE);
+			field* ab = new field(medium->nz, FFTW_ESTIMATE);
 			for (int i = 0; i < ab->GetLen(); ++i)
 			{
 				ab->data[i] = medium->Absorption(i);

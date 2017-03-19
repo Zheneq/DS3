@@ -9,24 +9,30 @@ class field
 private:
 	int n;
 	fftw_complex *sp;
-	fftw_plan *forward, *backward;
+	bool bForward, bBackward;
 	unsigned int flags;
 	void Dump_Sub(FILE *file, double *data, int n, Medium* medium, double(Medium::*transform)(int) const);
 public:
 
-	field(int _n, unsigned int _flags = FFTW_MEASURE) : data(nullptr), forward(nullptr), backward(nullptr), flags(_flags)
+	field(int _n, unsigned int _flags = FFTW_MEASURE) : data(nullptr), bForward(false), bBackward(false), flags(_flags)
 	{
 		n = _n;
 
-		data = (double*)malloc(sizeof(double)*n);
+		data = (double*)fftw_alloc_real(n);
 		sp = fftw_alloc_complex(n / 2 + 1);
-		spec = (double*)malloc(sizeof(double)*(n / 2 + 1));
+		spec = (double*)fftw_alloc_real(n / 2 + 1);
 	}
+	field(const field &other) : field(other.n)
+	{
+		memcpy(data, other.data, sizeof(data[0]) * n);
+		memcpy(sp, other.sp, sizeof(sp[0]) * (n / 2 + 1));
+		memcpy(spec, other.spec, sizeof(spec[0]) * (n / 2 + 1));
+	}
+	~field();
 
 	double *data;
 	double *spec;
 	void Fourier(bool back = false);
-	void Free();
 	int GetLen() { return n; }
 //	void Dump(char *name, Medium* medium, double(Medium::*transform)(int) = &Medium::realxe, double(Medium::*transformspec)(int) = &Medium::realspec);
 //	void DumpFullPrecision(char *name, Medium* medium, double(Medium::*transform)(int) = &Medium::realxe, double(Medium::*transformspec)(int) = &Medium::realspec);

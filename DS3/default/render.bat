@@ -1,1 +1,0 @@
-gnuplot -e "cf='%1';" render.txt

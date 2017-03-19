@@ -71,8 +71,7 @@ void ObsModule::Average(vector<Module*> modules)
 {
 	char fn[64];
 
-	field *avrg = new field();
-	avrg->Init(experiment->medium->nt);
+	field avrg(experiment->medium->nt);
 
 	for (unsigned int i = 0; i < RecHeads.size(); ++i) // Observers
 	{
@@ -83,17 +82,17 @@ void ObsModule::Average(vector<Module*> modules)
 			{
 				sum += ((ObsModule*)modules[k])->RecHeads[i]->e->data[j];
 			}
-			avrg->data[j] = sum / modules.size();
+			avrg.data[j] = sum / modules.size();
 		}
 
-		avrg->Fourier();
+		avrg.Fourier();
 
 		sprintf_s(fn, "rec_%s", RecHeadNames[i].c_str());
 		FILE *f = experiment->GetFile(fn);
 		sprintf_s(fn, "rec_%s-spec", RecHeadNames[i].c_str());
 		FILE *fs = experiment->GetFile(fn);
 
-		avrg->DumpFullPrecision(f, fs, experiment->medium, &Medium::realte, &Medium::realspect);
+		avrg.DumpFullPrecision(f, fs, experiment->medium, &Medium::realte, &Medium::realspect);
 
 		for (const auto &m : modules)
 		{

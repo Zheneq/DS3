@@ -14,10 +14,8 @@ struct RecHead
 
 	void Init()
 	{
-		e = new field();
-		h = new field();
-		e->Init(len);
-		h->Init(len);
+		e = new field(len);
+		h = new field(len);
 	}
 	~RecHead()
 	{
