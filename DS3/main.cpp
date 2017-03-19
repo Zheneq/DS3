@@ -17,11 +17,11 @@ default_random_engine *gen = NULL;
 double eps = 1e-12; // Точность
 char DumpPattern[64] = "%.12e %.12e\n";
 
-/// THESE FUNCTIONS CAN ONLY BE CALLED FROM MAIN THREAD
+/// THIS FUNCTION CAN ONLY BE CALLED FROM MAIN THREAD
 map<int, fftw_plan> plans;
 fftw_plan& CreatePlan(int n)
 {
-	plans[n] = fftw_plan_dft_r2c_1d(n, nullptr, nullptr, FFTW_ESTIMATE);
+	plans[n] = fftw_plan_dft_r2c_1d(n, nullptr, nullptr, FFTW_ESTIMATE | FFTW_PRESERVE_INPUT);
 	return plans[n];
 }
 
@@ -105,7 +105,7 @@ public:
 		CreatePlan(tempMedium.nz);
 		CreatePlan(tempMedium.nt);
 		
-		/*
+		//*
 		vector<thread*> threads;
 		/// ~TODO Распарралелить
 		for (unsigned int i = 0; i < exps.size(); ++i)
@@ -121,11 +121,12 @@ public:
 		threads.clear();
 		//*/
 
+		/*
 		for (unsigned int i = 0; i < exps.size(); ++i)
 		{
 			RunExperiment(exps[i]);
 		}
-
+		//*/
 
 
 

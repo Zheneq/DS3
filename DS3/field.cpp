@@ -5,6 +5,7 @@ fftw_plan& GetPlan(int n);
 
 void field::Fourier(bool back)
 {
+	// return;
 	// TODO: Обратное Фурье не из того массива
 	if (back)
 	{
@@ -30,7 +31,11 @@ void field::Fourier(bool back)
 	}
 	else
 	{
-		fftw_execute_dft_r2c(GetPlan(n), data, sp);
+		// TODO: WTH FFTW overwrites the source array?!
+		double *temp = fftw_alloc_real(n);
+		memcpy(temp, data, n * sizeof(data[0]));
+
+		fftw_execute_dft_r2c(GetPlan(n), temp, sp);
 
 		for (int i = 0; i < n / 2 + 1; i++)
 		{
@@ -137,5 +142,5 @@ void field::Dump_Sub(FILE *file, double *data, int n, Medium* medium, double(Med
 	fprintf(fe, DumpPattern, (medium->*transform)(n - 1), data[n - 1]);
 	fprintf(fe, "\n\n");
 
-	fclose(fe);
+	// fclose(fe);
 }
