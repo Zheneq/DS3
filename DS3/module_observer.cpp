@@ -4,21 +4,15 @@
 // const auto info = experiment->medium;
 void ObsModule::Init()
 {
-	ObsLeft = &AddObserver(0, "left");
-	ObsRight = &AddObserver(experiment->medium->nz - 1, "right");
+	AddObserver(0, "left");
+	AddObserver(experiment->medium->nz - 1, "right");
 
 	for (auto rc : RecHeads)
 		rc->Init();
 	Tick(0);
-
-	init_nrg = 0.0;
-	for (int i = 1; i < experiment->medium->nz - 1; ++i)
-	{
-		init_nrg += experiment->medium->e->data[i];
-	}
 }
 
-const RecHead& ObsModule::AddObserver(int x, const char* name)
+void ObsModule::AddObserver(int x, const char* name)
 {
 	RecHeads.push_back(new RecHead(x, experiment->medium->nt));
 	RecHeadNames.push_back(string(name));
@@ -28,8 +22,6 @@ const RecHead& ObsModule::AddObserver(int x, const char* name)
 	sprintf_s(msg, 256, "Observer %02d (%s) at %f", RecHeads.size() - 1, RecHeadNames.back().c_str(), experiment->medium->realxe(x));
 	experiment->Log(msg);
 	delete[] msg;
-
-	return *RecHeads.back();
 }
 
 const RecHead& ObsModule::GetObserver(const char *name)
@@ -73,27 +65,6 @@ void ObsModule::PostCalc(int time)
 		RC->e->DumpFullPrecision(f, nullptr, experiment->medium, &Medium::realte, nullptr);
 	}
 	fclose(f);
-
-	left_nrg = 0.0;  right_nrg = 0.0; rest_nrg = 0.0;
-	for (int i = 0; i < experiment->medium->nt; ++i)
-	{
-		left_nrg += pow(ObsLeft->e->data[i], 2);
-		right_nrg += pow(ObsRight->e->data[i], 2);
-	}
-	for (int i = 1; i < experiment->medium->nz - 1; ++i)
-	{
-		rest_nrg += pow(experiment->medium->e->data[i], 2);
-	}
-
-	char msg[256];
-	sprintf_s(msg, "Initial  elec energy: %.12e", init_nrg);
-	experiment->Log(msg);
-	sprintf_s(msg, " <----   elec energy: %.12e", left_nrg);
-	experiment->Log(msg);
-	sprintf_s(msg, " ---->   elec energy: %.12e", right_nrg);
-	experiment->Log(msg);
-	sprintf_s(msg, "Residual elec energy: %.12e", rest_nrg);
-	experiment->Log(msg);
 }
 
 void ObsModule::Average(vector<Module*> modules)
@@ -101,10 +72,6 @@ void ObsModule::Average(vector<Module*> modules)
 	char fn[64];
 
 	field avrg(experiment->medium->nt);
-
-	FILE *fstats = experiment->GetFile("Stats");
-
-	fprintf(fstats, "Coefs for average pulse:\n");
 
 	for (unsigned int i = 0; i < RecHeads.size(); ++i) // Observers
 	{
@@ -132,35 +99,7 @@ void ObsModule::Average(vector<Module*> modules)
 			((ObsModule*)m)->RecHeads[i]->e->DumpFullPrecision(f, fs, experiment->medium, &Medium::realte, &Medium::realspect);
 		}
 
-		if (RecHeadNames[i] == "left" || RecHeadNames[i] == "right")
-		{
-			double nrg = 0.0f;
-			for (int j = 0; j < experiment->medium->nt; ++j) // Time slices
-			{
-				nrg += pow(avrg.data[j], 2);
-			}
-			fprintf(fstats, "%s Average:  %.12e\n", RecHeadNames[i].c_str(), nrg / init_nrg);
-
-		}
-
-
 		fclose(f);
 		fclose(fs);
 	}
-
-	double refl_nrg_sum = 0.0, trans_nrg_sum = 0.0, abs_nrg_sum = 0.0;
-	for (unsigned int k = 0; k < modules.size(); ++k)
-	{
-		refl_nrg_sum += ((ObsModule*)modules[k])->left_nrg;
-		trans_nrg_sum += ((ObsModule*)modules[k])->right_nrg;
-		abs_nrg_sum += ((ObsModule*)modules[k])->init_nrg - ((ObsModule*)modules[k])->rest_nrg;
-	}
-
-	fprintf(fstats, "Average coefs:\n");
-	fprintf(fstats, "Average Refl:  %.12e\n", refl_nrg_sum  / (init_nrg * modules.size()));
-	fprintf(fstats, "Average Trans: %.12e\n", trans_nrg_sum / (init_nrg * modules.size()));
-	fprintf(fstats, "Average Abs:   %.12e\n", abs_nrg_sum   / (init_nrg * modules.size()));
-
-	fclose(fstats);
-
 }
