@@ -181,7 +181,7 @@ double Medium::Absorption(int x) const
 {
 	// gauss
 	double rx = realxe(x);
-	return AbsorbCoef * exp(-pow((rx - AbsorbCenter) / AbsorbHalfWidth, 2));
+	return AbsorbCoef * exp(-pow((rx - AbsorbCenter) / AbsorbHalfWidth, 10));
 
 	// rectangle
 	/*
