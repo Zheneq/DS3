@@ -8,15 +8,12 @@ void Experiment::Log(const char *msg, bool bToConsole)
 	if (!logFile) throw("No log file!");
 
 	fprintf(logFile, "%s\n", msg);
-	printf("\n\tLog: [%02d]\t%s\n", id, msg);
+	if (bToConsole) printf("\n\tLog: [%02d]\t%s\n", id, msg);
 }
 
 void Experiment::Load(const char *baseinifile, const char *overrideinifile)
 {
 	Configurer config(baseinifile, overrideinifile);
-
-	medium = new Medium(this);
-	medium->Load(config);
 
 	// Output folders
 	strcpy_s(path, overrideinifile ? overrideinifile : baseinifile);
@@ -41,6 +38,9 @@ void Experiment::Load(const char *baseinifile, const char *overrideinifile)
 	sprintf(fn, "%s/log.txt", path);
 	logFile = fopen(fn, "w");
 	delete[] fn;
+
+	medium = new Medium(this);
+	medium->Load(config);
 
 	// Модули
 	observer = new ObsModule(this);

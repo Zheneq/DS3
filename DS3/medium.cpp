@@ -10,18 +10,18 @@ Medium::Medium(Experiment* const _experiment) : Layers(nullptr), e(nullptr), h(n
 	RealParams.emplace_back("Time", 0.0);
 	RealParams.emplace_back("Step", 0.0);
 	RealParams.emplace_back("CarrFreq", 0.0);
-	RealParams.emplace_back("ImpWidth", 0.0);
+	RealParams.emplace_back("ImpHalfWidth", 0.0);
 
 
+	RealParams.emplace_back("Eps0", 0.0);
 	RealParams.emplace_back("Eps1", 0.0);
-	RealParams.emplace_back("Eps2", 0.0);
 	RealParams.emplace_back("EpsMaxDivergenceRel", 0.1);
 
 	IntParams.emplace_back("LayerCount", 0);
 
 	RealParams.emplace_back("Left", 0.0);
+	RealParams.emplace_back("LayerWidth0", 0.0);
 	RealParams.emplace_back("LayerWidth1", 0.0);
-	RealParams.emplace_back("LayerWidth2", 0.0);
 	RealParams.emplace_back("LayerWidthMaxDivergenceRel", 0.1);
 
 	IntParams.emplace_back("AbsorbLayer", -1);
@@ -56,6 +56,24 @@ void Medium::Load(const Configurer &config)
 		for (auto &p : IntParams) p.Read(config.over);
 		for (auto &p : RealParams) p.Read(config.over);
 	}
+
+	// Log
+	char msg[256];
+	if (experiment)
+	{
+		Log("Actual parameters:");
+		for (auto &p : IntParams)
+		{
+			sprintf_s(msg, "%s = %d", p.name, p.value);
+			Log(msg);
+		}
+		for (auto &p : RealParams)
+		{
+			sprintf_s(msg, "%s = %lf", p.name, p.value);
+			Log(msg);
+		}
+		Log("");
+	}
 }
 
 void Medium::Init()
@@ -66,17 +84,17 @@ void Medium::Init()
 	lt = GetReal("Time");
 	hs = GetReal("Step");
 	cf = GetReal("CarrFreq");
-	a = GetReal("ImpWidth");
+	a = GetReal("ImpHalfWidth");
 
-	DP[0] = GetReal("Eps1");
-	DP[1] = GetReal("Eps2");
+	DP[0] = GetReal("Eps0");
+	DP[1] = GetReal("Eps1");
 	DPMaxDivergenceRel = GetReal("EpsMaxDivergenceRel");
 
 	AbsorbHalfWidth = GetReal("AbsorbHalfWidth");
 
 	double StructureLeftEdge = GetReal("Left");
-	LayerWidth[0] = GetReal("LayerWidth1");
-	LayerWidth[1] = GetReal("LayerWidth2");
+	LayerWidth[0] = GetReal("LayerWidth0");
+	LayerWidth[1] = GetReal("LayerWidth1");
 	LayerCount = GetInt("LayerCount");
 	LayerWidthMaxDivergenceRel = GetReal("LayerWidthMaxDivergenceRel");
 	AbsorbCoef = GetReal("AbsorbCoef");
@@ -86,14 +104,14 @@ void Medium::Init()
 	DumpFrameStep = GetInt("FrameStep");
 
 	// Generation
-	double requiredLength = GetReal("ImpWidth") * 5 + StructureLeftEdge + max(LayerWidth[0], LayerWidth[1]) * (LayerWidthMaxDivergenceRel + 1) * LayerCount;
+	double requiredLength = GetReal("ImpHalfWidth") * 5 + StructureLeftEdge + max(LayerWidth[0], LayerWidth[1]) * (LayerWidthMaxDivergenceRel + 1) * LayerCount;
 	int requiredPoints = (int)ceil(requiredLength / hs);
 
 	nz = (int)pow(2, (int)log2(requiredPoints) + 1);
 	lz = nz * hs;
 
 
-	lz0 = (lz - requiredLength) * .5 + GetReal("ImpWidth") * 5;
+	lz0 = (lz - requiredLength) * .5 + GetReal("ImpHalfWidth") * 5;
 	ts = hs;
 
 	nt = (int)(lt / ts) + 1;

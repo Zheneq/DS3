@@ -50,7 +50,7 @@ public:
 			throw "Too few command-line arguments";
 		}
 		baseinifile = argv[1];
-		if (argc < 3)
+		if (argc > 2)
 		{
 			overrideinifile = argv[2];
 		}

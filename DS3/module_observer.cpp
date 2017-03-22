@@ -14,7 +14,7 @@ void ObsModule::Init()
 	init_nrg = 0.0;
 	for (int i = 1; i < experiment->medium->nz - 1; ++i)
 	{
-		init_nrg += experiment->medium->e->data[i];
+		init_nrg += pow(experiment->medium->e->data[i], 2);
 	}
 }
 
@@ -139,7 +139,7 @@ void ObsModule::Average(vector<Module*> modules)
 			{
 				nrg += pow(avrg.data[j], 2);
 			}
-			fprintf(fstats, "%s Average:  %.12e\n", RecHeadNames[i].c_str(), nrg / init_nrg);
+			fprintf(fstats, "%s Average:  %.12lf\n", RecHeadNames[i].c_str(), nrg / init_nrg);
 
 		}
 
@@ -148,18 +148,23 @@ void ObsModule::Average(vector<Module*> modules)
 		fclose(fs);
 	}
 
-	double refl_nrg_sum = 0.0, trans_nrg_sum = 0.0, abs_nrg_sum = 0.0;
+	double refl_nrg_sum = 0.0, trans_nrg_sum = 0.0, rest_nrg_sum = 0.0;
 	for (unsigned int k = 0; k < modules.size(); ++k)
 	{
 		refl_nrg_sum += ((ObsModule*)modules[k])->left_nrg;
 		trans_nrg_sum += ((ObsModule*)modules[k])->right_nrg;
-		abs_nrg_sum += ((ObsModule*)modules[k])->init_nrg - ((ObsModule*)modules[k])->rest_nrg;
+		rest_nrg_sum += ((ObsModule*)modules[k])->rest_nrg;
 	}
+	double r = refl_nrg_sum / (init_nrg * modules.size());
+	double t = trans_nrg_sum / (init_nrg * modules.size());
+	double l = rest_nrg_sum / (init_nrg * modules.size());
+	double a = 1.0 - r - t - l;
 
 	fprintf(fstats, "Average coefs:\n");
-	fprintf(fstats, "Average Refl:  %.12e\n", refl_nrg_sum  / (init_nrg * modules.size()));
-	fprintf(fstats, "Average Trans: %.12e\n", trans_nrg_sum / (init_nrg * modules.size()));
-	fprintf(fstats, "Average Abs:   %.12e\n", abs_nrg_sum   / (init_nrg * modules.size()));
+	fprintf(fstats, "Average Refl:  %.12lf\n", r);
+	fprintf(fstats, "Average Trans: %.12lf\n", t);
+	fprintf(fstats, "Average Abs:   %.12lf\n", a);
+	fprintf(fstats, "Average Res:   %.12lf\n", l);
 
 	fclose(fstats);
 

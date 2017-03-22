@@ -13,17 +13,6 @@ void MainModule::Init()
 	{
 		info->h->data[i] = info->e->data[i] = exp(-((xe*xe) / (info->a*info->a)))*cos(info->cf*xe);
 	}
-
-
-	char fn[256];
-	sprintf_s(fn, "e_frame%06d", 0);
-	FILE *f = experiment->GetFile(fn);
-	sprintf_s(fn, "e-spec_frame%06d", 0);
-	FILE *fs = experiment->GetFile(fn);
-	info->e->Fourier();
-	info->e->Dump(f, fs, info);
-	fclose(f);
-	fclose(fs);
 }
 
 void MainModule::Tick(int time)
