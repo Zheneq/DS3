@@ -183,6 +183,7 @@ int main(int argc, char **argv)
 	e.Init(argc, argv);
 	e.Run();
 
+	delete gen;
 	return 0;
 }
 

@@ -87,4 +87,5 @@ void InvModule::PostCalc(int time)
 		delete[] inv[i];
 		fclose(f[i]);
 	}
+	delete[] h_cache;
 }

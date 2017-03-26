@@ -36,6 +36,7 @@ void field::Fourier(bool back)
 		memcpy(temp, data, n * sizeof(data[0]));
 
 		fftw_execute_dft_r2c(GetPlan(n), temp, sp);
+		fftw_free(temp);
 
 		for (int i = 0; i < n / 2 + 1; i++)
 		{

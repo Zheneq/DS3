@@ -78,6 +78,7 @@ void Experiment::Run()
 			Log(m);
 		}
 		Log("Structure end");
+		delete[] m;
 
 		{
 			field* dp = new field(medium->nz, FFTW_ESTIMATE);
