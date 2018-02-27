@@ -160,6 +160,10 @@ void Medium::Init()
 
 		AbsorbCenter = .5 * (Layers[AbsorbLayer].right + Layers[AbsorbLayer].left);
 	}
+	else
+	{
+		AbsorbCoef = 0.0;
+	}
 
 	char msg[256];
 	Log("Layers:");
